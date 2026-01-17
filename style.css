@@ -1,0 +1,28 @@
+.overlay {
+    position: fixed;          /* stay in place even when scrolling */
+    top: 0;                   /* start at the top of the viewport */
+    left: 0;                  /* start at the left */
+    width: 100vw;             /* full viewport width */
+    height: 100vh;            /* full viewport height */
+    background-color: rgba(0, 0, 0, 0.7); /* semi-transparent dark background */
+    color: white;             /* text color */
+    display: flex;            /* use flex to center content */
+    align-items: center;      /* vertically center */
+    justify-content: center;  /* horizontally center */
+    font-size: 32px;          /* text size */
+    z-index: 2147483647;      /* highest safe z-index to be on top */
+}
+
+.close-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: red;
+    color: white;
+    cursor: pointer;
+    z-index: 2147483648;
+}

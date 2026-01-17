@@ -1,8 +1,22 @@
 {
-    "name": "Hello Extensions",
+    "name": "Hello TEST",
     "description": "Base Level Extension",
     "version": "1.0",
     "manifest_version": 3,
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content.js"],
+            "css": ["style.css"],
+            "all_frames": true
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["audio/five-nights-at-freddys-full-scream-sound_2.mp3"],
+            "matches": ["<all_urls>"]
+        }
+    ],
     "action": {
       "default_popup": "hello.html",
       "default_icon": "hello_extensions.png"
