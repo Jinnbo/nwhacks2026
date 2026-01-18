@@ -263,6 +263,8 @@ const showGenerateOverlay = () => {
       <img id="stickerPreview" src="" alt="Preview" style="max-width: 100%; max-height: 200px; max-width: 200px; display: none; border: 1px solid #ccc; border-radius: 4px; margin: auto;">
       <textarea class="sticker-prompt-input" rows="4" cols="50" placeholder="E.g., A cartoon beaver standing in front of Jupiter"></textarea>
 
+      <div id="generate-status" style="display: none; padding: 8px; border-radius: 4px; margin: 8px 0;"></div>
+
       <div class="modal-actions">
         <button class="btn switch-upload-button">Upload</button>
         <button class="btn-secondary confirm-button">Generate</button>
@@ -277,8 +279,10 @@ const showGenerateOverlay = () => {
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
 
   const confirmButton = overlay.querySelector('.confirm-button');
-  confirmButton.addEventListener('click', () => {
-    const textarea = overlay.querySelector('.sticker-prompt-input');
+  const statusDiv = overlay.querySelector('#generate-status');
+  const textarea = overlay.querySelector('.sticker-prompt-input');
+
+  confirmButton.addEventListener('click', async () => {
     const prompt = textarea.value.trim();
 
     if (!prompt) {
@@ -286,7 +290,75 @@ const showGenerateOverlay = () => {
       return;
     }
 
-    console.log("GENERATING WITH ", prompt);
-    // DO SOMETHING WITH THE PROMPT HERE
+    // Show loading state
+    confirmButton.disabled = true;
+    confirmButton.textContent = 'Generating...';
+    statusDiv.style.display = 'block';
+    statusDiv.style.background = '#e3f2fd';
+    statusDiv.style.color = '#1976d2';
+    statusDiv.textContent = 'Generating sticker...';
+    textarea.disabled = true;
+
+    try {
+      // Get SUPABASE_ANON_KEY from background script
+      let apikey = '';
+      try {
+        const response = await chrome.runtime.sendMessage({ type: 'GET_API_KEY' });
+        if (response && response.apikey) {
+          apikey = response.apikey;
+        }
+      } catch (e) {
+        console.log('Could not get API key from background script:', e);
+        // Fallback: try global scope
+        if (typeof SUPABASE_ANON_KEY !== 'undefined') {
+          apikey = SUPABASE_ANON_KEY;
+        }
+      }
+
+      // Call the edge function
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+      if (apikey) {
+        headers['apikey'] = apikey;
+      }
+
+      const response = await fetch('https://xrvicqszlafncvfmqydp.supabase.co/functions/v1/generate-sticker-via-prompt', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({ prompt })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || `Generation failed with status ${response.status}`);
+      }
+
+      const asset = await response.json();
+      console.log('Sticker generated successfully:', asset);
+
+      // Show success message
+      statusDiv.style.background = '#e8f5e9';
+      statusDiv.style.color = '#2e7d32';
+      statusDiv.textContent = 'Created successfully!';
+
+      // Close modal after brief delay
+      setTimeout(() => {
+        overlay.remove();
+      }, 1500);
+
+    } catch (error) {
+      console.error('Error generating sticker:', error);
+      
+      // Show error message
+      statusDiv.style.background = '#ffebee';
+      statusDiv.style.color = '#c62828';
+      statusDiv.textContent = `Error: ${error.message}`;
+
+      // Re-enable button and textarea for retry
+      confirmButton.disabled = false;
+      confirmButton.textContent = 'Generate';
+      textarea.disabled = false;
+    }
   });
 };

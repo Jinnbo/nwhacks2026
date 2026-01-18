@@ -287,6 +287,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       isSubscribed: realtimeChannel !== null,
       userId: currentUserId
     });
+  } else if (message.type === 'GET_API_KEY') {
+    sendResponse({
+      apikey: typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : ''
+    });
   }
 
   return false;
