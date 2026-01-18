@@ -50,8 +50,7 @@ function setupRealtimeSubscription(userId) {
         console.log('[Background] New sticker received:', payload);
         const sticker = payload.new;
         if (sticker && sticker.image_url) {
-          const scary = sticker.scary || false;
-          sendStickerToAllTabs(sticker.image_url, scary);
+          sendStickerToAllTabs(sticker.image_url);
         }
       }
     )
@@ -80,9 +79,8 @@ function cleanupRealtimeSubscription() {
 }
 
 // Send sticker to all tabs via content scripts
-function sendStickerToAllTabs(imageUrl, scary) {
-  const scaryBool = scary || false;
-  console.log('[Background] Sending sticker to all tabs:', imageUrl, 'scary:', scaryBool);
+function sendStickerToAllTabs(imageUrl) {
+  console.log('[Background] Sending sticker to all tabs:', imageUrl);
 
   chrome.tabs.query({}, (tabs) => {
     if (chrome.runtime.lastError) {
@@ -101,14 +99,13 @@ function sendStickerToAllTabs(imageUrl, scary) {
           tab.id,
           {
             type: 'SHOW_STICKER',
-            imageUrl: imageUrl,
-            scary: scaryBool
+            imageUrl: imageUrl
           },
           (response) => {
             if (chrome.runtime.lastError) {
               // Content script not loaded, inject it directly
               console.log(`[Background] Content script not loaded on tab ${tab.id}, injecting script`);
-              injectStickerScript(tab.id, imageUrl, scaryBool);
+              injectStickerScript(tab.id, imageUrl);
             } else {
               console.log(`[Background] Sticker sent to tab ${tab.id}, response:`, response);
             }
@@ -120,105 +117,53 @@ function sendStickerToAllTabs(imageUrl, scary) {
 }
 
 // Inject script directly to show sticker if content script isn't loaded
-function injectStickerScript(tabId, imageUrl, scary) {
-  const scaryBool = scary || false;
-  const scaryAudioUrl = chrome.runtime.getURL('scary.mp3');
-  
-  const showStickerFunction = (url, isScary, audioUrl) => {
-    if (isScary) {
-      // Call showJumpScare for scary stickers
-      const overlay = document.createElement('div');
-      overlay.className = 'overlay';
-      overlay.innerHTML = `
-          <img src="${url}" 
-              alt="GIF" 
-              style="width: 1000px; height: auto;">
-          <button class="close-button" id="close-overlay">X</button>
-      `;
+function injectStickerScript(tabId, imageUrl) {
+  const addStickerFunction = (url) => {
+    const img = document.createElement("img");
+    img.src = url;
 
-      const audio = new Audio(audioUrl);
-      audio.loop = true;
-      audio.volume = 1.0;
+    const size = 100; // px
 
-      let overlayDisplayed = false;
+    // Random position
+    const maxX = window.innerWidth - size;
+    const maxY = window.innerHeight - size;
 
-      function triggerOverlay() {
-          if (overlayDisplayed) return;
-          overlayDisplayed = true;
-          audio.play().catch(err => console.log("Audio blocked:", err));
+    img.style.position = "fixed";
+    img.style.left = `${Math.random() * maxX}px`;
+    img.style.top = `${Math.random() * maxY}px`;
 
-          if (!document.body.contains(overlay)) {
-              document.body.appendChild(overlay);
+    img.style.width = `${size}px`;
+    img.style.height = `${size}px`;
 
-              // Close button
-              const closeButton = overlay.querySelector("#close-overlay");
-              closeButton.addEventListener("click", () => {
-                  audio.pause();
-                  audio.currentTime = 0;
-                  overlay.remove();
-              });
-          }
-      }
+    img.style.zIndex = "2147483640";
+    img.style.pointerEvents = "none";
+    img.style.userSelect = "none";
 
-      // List of interactions to listen for
-      const events = ["click", "keydown", "touchstart", "touchmove"];
+    // Random rotation between -30 and +30 degrees
+    const rotation = Math.random() * 60 - 30;
+    img.style.transform = `rotate(${rotation}deg)`;
 
-      // Attach listeners, all will fire the same function once
-      events.forEach(evt => {
-          document.addEventListener(evt, triggerOverlay, { once: true });
-      });
-    } else {
-      // Call addSticker for normal stickers
-      const img = document.createElement("img");
-      img.src = url;
+    // Add smooth opacity transition for fade-out
+    img.style.transition = "opacity 1s";
+    img.alt = "sticker";
+    document.body.appendChild(img);
 
-      const size = 100; // px
+    // Start fade-out after 11 seconds
+    setTimeout(() => {
+      img.style.opacity = "0";
+    }, 11000);
 
-      // Random position
-      const maxX = window.innerWidth - size;
-      const maxY = window.innerHeight - size;
-
-      img.style.position = "fixed";
-      img.style.left = `${Math.random() * maxX}px`;
-      img.style.top = `${Math.random() * maxY}px`;
-
-      img.style.width = `${size}px`;
-      img.style.height = `${size}px`;
-
-      img.style.zIndex = "2147483640";
-      img.style.pointerEvents = "none";
-      img.style.userSelect = "none";
-
-      // Random rotation between -30 and +30 degrees
-      const rotation = Math.random() * 60 - 30;
-      img.style.transform = `rotate(${rotation}deg)`;
-
-      // Add smooth opacity transition for fade-out
-      img.style.transition = "opacity 1s";
-      img.alt = "sticker";
-      document.body.appendChild(img);
-
-      const audio = new Audio(chrome.runtime.getURL('hit.wav')); 
-      audio.volume = 1.0;
-      audio.play().catch(err => console.log("Audio blocked:", err));
-
-      // Start fade-out after 11 seconds
-      setTimeout(() => {
-        img.style.opacity = "0";
-      }, 11000);
-
-      // Remove sticker after 12 seconds
-      setTimeout(() => {
-        img.remove();
-      }, 12000);
-    }
+    // Remove sticker after 12 seconds
+    setTimeout(() => {
+      img.remove();
+    }, 12000);
   };
 
   chrome.scripting.executeScript(
     {
       target: { tabId: tabId },
-      func: showStickerFunction,
-      args: [imageUrl, scaryBool, scaryAudioUrl]
+      func: addStickerFunction,
+      args: [imageUrl]
     },
     (results) => {
       if (chrome.runtime.lastError) {

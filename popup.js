@@ -51,7 +51,6 @@ function initializeApp() {
   const moreOverlay = document.getElementById("moreOverlay");
   const moreCloseBtn = document.getElementById("moreCloseBtn");
   let selectedStickerUrl = null;
-  let selectedStickerScary = null;
 
   // Track Realtime channel subscription
   let realtimeChannel = null;
@@ -424,16 +423,9 @@ function initializeApp() {
 
             thumb.addEventListener("click", () => {
               selectedStickerUrl = url;
-<<<<<<< Updated upstream
               // clear selection across gallery (use class-based selection)
               stickersGallery.querySelectorAll("img.sticker-thumb").forEach((img) => img.classList.remove("selected"));
               thumb.classList.add("selected");
-=======
-              selectedStickerScary = r.scary || false;
-              // clear selection across gallery
-              stickersGallery.querySelectorAll("img").forEach((img) => (img.style.border = "2px solid transparent"));
-              thumb.style.border = "2px solid #4CAF50";
->>>>>>> Stashed changes
             });
 
             row.appendChild(thumb);
@@ -595,7 +587,7 @@ function initializeApp() {
   }
 
   // Handle user click - create sticker record
-  async function handleUserClick(recipientId, displayName, imageUrl, scary) {
+  async function handleUserClick(recipientId, displayName, imageUrl) {
     try {
       // Get current user session
       const {
@@ -624,7 +616,6 @@ function initializeApp() {
             sender_id: senderId,
             recipient_id: recipientId,
             image_url: finalImageUrl,
-            scary: scary || false,
           },
         ])
         .select();
@@ -695,14 +686,14 @@ function initializeApp() {
 
       // Use the selected sticker if available
       if (selectedStickerUrl) {
-        handleUserClick(recipientId, displayName, selectedStickerUrl, selectedStickerScary);
+        handleUserClick(recipientId, displayName, selectedStickerUrl);
       } else {
         // No sticker selected: ask to confirm using default
         const ok = confirm(
           "No sticker selected. Send default sticker instead?",
         );
         if (ok) {
-          handleUserClick(recipientId, displayName, null, false);
+          handleUserClick(recipientId, displayName);
         }
       }
     });
