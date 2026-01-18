@@ -345,8 +345,11 @@ function initializeApp() {
         },
         (payload) => {
           console.log('New sticker received:', payload);
-          // Show banner when sticker is received
-          showStickerBanner(payload.new);
+          // Send message to content scripts to show sticker
+          const sticker = payload.new;
+          if (sticker && sticker.image_url) {
+            sendStickerToAllTabs(sticker.image_url);
+          }
         }
       )
       .subscribe((status) => {
@@ -366,6 +369,109 @@ function initializeApp() {
       supabase.removeChannel(realtimeChannel);
       realtimeChannel = null;
     }
+  }
+
+  // Send sticker to all tabs via content scripts
+  function sendStickerToAllTabs(imageUrl) {
+    console.log('Sending sticker to all tabs:', imageUrl);
+    
+    // Query all tabs
+    chrome.tabs.query({}, (tabs) => {
+      if (chrome.runtime.lastError) {
+        console.error('Error querying tabs:', chrome.runtime.lastError);
+        return;
+      }
+      
+      console.log(`Found ${tabs.length} tabs`);
+      
+      // Send message to each tab
+      tabs.forEach((tab) => {
+        // Skip chrome:// and extension pages
+        if (tab.url && !tab.url.startsWith('chrome://') && !tab.url.startsWith('chrome-extension://')) {
+          console.log(`Sending message to tab ${tab.id} (${tab.url})`);
+          
+          // First try to send message (if content script is already loaded)
+          chrome.tabs.sendMessage(
+            tab.id,
+            {
+              type: 'SHOW_STICKER',
+              imageUrl: imageUrl
+            },
+            (response) => {
+              if (chrome.runtime.lastError) {
+                // Content script not loaded, inject it directly
+                console.log(`Content script not loaded on tab ${tab.id}, injecting script directly`);
+                injectStickerScript(tab.id, imageUrl);
+              } else {
+                console.log(`Sticker sent to tab ${tab.id} (${tab.url}), response:`, response);
+              }
+            }
+          );
+        } else {
+          console.log(`Skipping tab ${tab.id} (${tab.url}) - chrome:// or extension page`);
+        }
+      });
+    });
+  }
+
+  // Inject script directly to show sticker if content script isn't loaded
+  function injectStickerScript(tabId, imageUrl) {
+    // Define the function to inject
+    const addStickerFunction = (url) => {
+      const img = document.createElement("img");
+      img.src = url;
+
+      const size = 100; // px
+
+      // Random position
+      const maxX = window.innerWidth - size;
+      const maxY = window.innerHeight - size;
+
+      img.style.position = "fixed";
+      img.style.left = `${Math.random() * maxX}px`;
+      img.style.top = `${Math.random() * maxY}px`;
+
+      img.style.width = `${size}px`;
+      img.style.height = `${size}px`;
+
+      img.style.zIndex = "2147483640";
+      img.style.pointerEvents = "none";
+      img.style.userSelect = "none";
+
+      // Random rotation between -30 and +30 degrees
+      const rotation = Math.random() * 60 - 30;
+      img.style.transform = `rotate(${rotation}deg)`;
+
+      // Add smooth opacity transition for fade-out
+      img.style.transition = "opacity 1s";
+      img.alt = "sticker";
+      document.body.appendChild(img);
+
+      // Start fade-out after 11 seconds
+      setTimeout(() => {
+        img.style.opacity = "0"; // fade out over 1 second
+      }, 11000);
+
+      // Remove sticker after 12 seconds
+      setTimeout(() => {
+        img.remove();
+      }, 12000);
+    };
+
+    chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        func: addStickerFunction,
+        args: [imageUrl]
+      },
+      (results) => {
+        if (chrome.runtime.lastError) {
+          console.error(`Error injecting script into tab ${tabId}:`, chrome.runtime.lastError);
+        } else {
+          console.log(`Successfully injected sticker script into tab ${tabId}`);
+        }
+      }
+    );
   }
 
   // Show sticker banner

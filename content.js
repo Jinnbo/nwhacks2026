@@ -42,6 +42,10 @@ const showJumpScare = (gifURL, audioURL) => {
 }
 
 const addSticker = (stickerURL) => {
+  console.log('addSticker called with URL:', stickerURL);
+  console.log('document.body exists:', !!document.body);
+  console.log('window.innerWidth:', window.innerWidth, 'window.innerHeight:', window.innerHeight);
+  
   const img = document.createElement("img");
   img.src = stickerURL;
 
@@ -69,7 +73,19 @@ const addSticker = (stickerURL) => {
   // Add smooth opacity transition for fade-out
   img.style.transition = "opacity 1s";
   img.alt = "sticker";
+  
+  // Add error handler to see if image fails to load
+  img.onerror = (e) => {
+    console.error('Image failed to load:', stickerURL, e);
+  };
+  
+  img.onload = () => {
+    console.log('Image loaded successfully:', stickerURL);
+  };
+  
+  console.log('Appending image to body, image element:', img);
   document.body.appendChild(img);
+  console.log('Image appended, checking if in DOM:', document.body.contains(img));
 
   // Start fade-out after 11 seconds
   setTimeout(() => {
@@ -81,6 +97,25 @@ const addSticker = (stickerURL) => {
     img.remove();
   }, 12000);
 };
+
+// Listen for messages from popup/background script
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log('Content script received message:', message);
+  if (message.type === 'SHOW_STICKER' && message.imageUrl) {
+    console.log('Received sticker message, calling addSticker with:', message.imageUrl);
+    try {
+      addSticker(message.imageUrl);
+      console.log('addSticker called successfully');
+      sendResponse({ success: true });
+    } catch (error) {
+      console.error('Error calling addSticker:', error);
+      sendResponse({ success: false, error: error.message });
+    }
+  } else {
+    console.log('Message type or imageUrl missing:', { type: message.type, imageUrl: message.imageUrl });
+  }
+  return true; // Keep the message channel open for async response
+});
 
 // for (let i = 0; i < 80; i++) {
 //   addSticker("https://images.freeimages.com/image/previews/80a/panda-boy-anime-hood-png-5693574.png?fmt=webp&h=350");

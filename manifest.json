@@ -8,10 +8,13 @@
         "default_icon": "hello_extensions.png"
     },
     "permissions": [
-        "identity"
+        "identity",
+        "tabs",
+        "scripting"
     ],
     "host_permissions": [
-        "https://xrvicqszlafncvfmqydp.supabase.co/*"
+        "https://xrvicqszlafncvfmqydp.supabase.co/*",
+        "<all_urls>"
     ],
     "content_scripts": [
         {
