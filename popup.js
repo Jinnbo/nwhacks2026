@@ -52,6 +52,7 @@ function initializeApp() {
   const moreOverlay = document.getElementById("moreOverlay");
   const moreCloseBtn = document.getElementById("moreCloseBtn");
   let selectedStickerUrl = null;
+  let selectedStickerScary = null;
   let selectedRecipientId = null;
   let selectedRecipientName = null;
 
@@ -426,6 +427,7 @@ function initializeApp() {
 
             thumb.addEventListener("click", () => {
               selectedStickerUrl = url;
+              selectedStickerScary = r.scary || false;
               // clear selection across gallery (use class-based selection)
               stickersGallery.querySelectorAll("img.sticker-thumb").forEach((img) => img.classList.remove("selected"));
               thumb.classList.add("selected");
@@ -610,7 +612,7 @@ function initializeApp() {
   }
 
   // Handle user click - create sticker record
-  async function handleUserClick(recipientId, displayName, imageUrl) {
+  async function handleUserClick(recipientId, displayName, imageUrl, scary) {
     try {
       // Get current user session
       const {
@@ -639,6 +641,7 @@ function initializeApp() {
             sender_id: senderId,
             recipient_id: recipientId,
             image_url: finalImageUrl,
+            scary: scary || false,
           },
         ])
         .select();
@@ -734,12 +737,12 @@ function initializeApp() {
 
       // Use the selected sticker if available
       if (selectedStickerUrl) {
-        handleUserClick(recipientId, displayName, selectedStickerUrl);
+        handleUserClick(recipientId, displayName, selectedStickerUrl, selectedStickerScary);
       } else {
         // No sticker selected: ask to confirm using default
         const ok = confirm("No sticker selected. Send default sticker instead?");
         if (ok) {
-          handleUserClick(recipientId, displayName);
+          handleUserClick(recipientId, displayName, null, false);
         }
       }
     });

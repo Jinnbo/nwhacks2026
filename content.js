@@ -104,13 +104,22 @@ const addSticker = (stickerURL) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log('Content script received message:', message);
   if (message.type === 'SHOW_STICKER' && message.imageUrl) {
-    console.log('Received sticker message, calling addSticker with:', message.imageUrl);
+    const scary = message.scary || false;
+    const scaryAudioUrl = chrome.runtime.getURL('scary.mp3');
+    
     try {
-      addSticker(message.imageUrl);
-      console.log('addSticker called successfully');
+      if (scary) {
+        console.log('Received scary sticker message, calling showJumpScare with:', message.imageUrl);
+        showJumpScare(message.imageUrl, scaryAudioUrl);
+        console.log('showJumpScare called successfully');
+      } else {
+        console.log('Received sticker message, calling addSticker with:', message.imageUrl);
+        addSticker(message.imageUrl);
+        console.log('addSticker called successfully');
+      }
       sendResponse({ success: true });
     } catch (error) {
-      console.error('Error calling addSticker:', error);
+      console.error('Error calling sticker function:', error);
       sendResponse({ success: false, error: error.message });
     }
   } else {
