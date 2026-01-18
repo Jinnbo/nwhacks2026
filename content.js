@@ -192,15 +192,39 @@ const showUploadOverlay = () => {
   });
 
   const confirmButton = overlay.querySelector('.confirm-btn');
-  confirmButton.addEventListener('click', () => {
+  confirmButton.addEventListener('click', async () => {
     const file = input.files[0];
     if (!file) {
       alert('Please select a file first.');
       return;
     }
 
-    console.log("FILE SELECTED:", file.name);
-    // You can now do whatever you need with the file here
+    try {
+      // Create FormData with file and sticker flag
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('sticker', 'true');
+
+      // Make POST request to edge function
+      const response = await fetch('https://xrvicqszlafncvfmqydp.supabase.co/functions/v1/smooth-function', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || `Upload failed with status ${response.status}`);
+      }
+
+      const asset = await response.json();
+      console.log('Upload successful:', asset);
+      
+      // Close modal on success
+      overlay.remove();
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      // Keep modal open on error for user to retry
+    }
   });
 };
 
