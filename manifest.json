@@ -18,6 +18,7 @@
     "permissions": [
         "identity",
         "tabs",
+        "activeTab",
         "scripting",
         "storage",
         "alarms"
@@ -36,7 +37,7 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": ["hit.wav", "scary.mp3"],
+            "resources": ["hit.wav", "scary.mp3", "assets/background.jpg", "assets/exit-icon.png", "assets/stickysend-addtitle.png", "assets/upload-icon.png"],
             "matches": ["<all_urls>"]
         }
     ]

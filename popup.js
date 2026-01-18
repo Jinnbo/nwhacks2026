@@ -801,19 +801,27 @@ function initializeApp() {
       hideStickerBanner();
     }
   });
-}
 
-const addBtn = document.getElementById("addBtn");
-
-addBtn.addEventListener("click", () => {
-  console.log("Add button clicked");
-
-  // Send a message to the content script
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    console.log("Right before send message");
-    chrome.tabs.sendMessage(tabs[0].id, { action: "toggleOverlay" });
+  const addBtn = document.getElementById('addBtn');
+if (addBtn) {
+  addBtn.addEventListener('click', async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    
+    // Skip chrome:// and extension pages
+    if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) {
+      alert('Cannot add stickers on this page. Please navigate to a regular website.');
+      return;
+    }
+    
+    chrome.tabs.sendMessage(tab.id, { action: 'toggleOverlay' }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('Error sending message:', chrome.runtime.lastError);
+        alert('Could not open sticker upload. Please refresh the page and try again.');
+      }
+    });
   });
-});
+}}
+
 
 
 

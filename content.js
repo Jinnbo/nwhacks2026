@@ -137,6 +137,15 @@ const addSticker = (stickerURL) => {
 // Listen for messages from popup/background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log('Content script received message:', message);
+  
+  // Handle toggleOverlay action
+  if (message.action === 'toggleOverlay') {
+    console.log("Content js got the toggle overlay action!");
+    showUploadOverlay();
+    return true; // Keep the channel open if needed
+  }
+  
+  // Handle SHOW_STICKER message
   if (message.type === 'SHOW_STICKER' && message.imageUrl) {
     const scary = message.scary || false;
     const scaryAudioUrl = chrome.runtime.getURL('scary.mp3');
@@ -156,7 +165,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       console.error('Error calling sticker function:', error);
       sendResponse({ success: false, error: error.message });
     }
-  } else {
+  } else if (message.type === 'SHOW_STICKER') {
     console.log('Message type or imageUrl missing:', { type: message.type, imageUrl: message.imageUrl });
   }
   return true; // Keep the message channel open for async response
@@ -168,14 +177,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 //   }, i * 1000);
 // }
 // showJumpScare("https://xrvicqszlafncvfmqydp.supabase.co/storage/v1/object/public/sticker/fnaf-gif.gif", "https://www.myinstants.com/en/instant/fnaf-jumpscare-scream/?utm_source=copy&utm_medium=share");
-
-// Listen for messages from popup
-chrome.runtime.onMessage.addListener((msg) => {
-  if (msg.action === 'toggleOverlay') {
-    console.log("Content js got the toggle overlay action!");
-    showUploadOverlay();
-  }
-});
 
 const showUploadOverlay = () => {
   // Remove generate overlay if it exists
@@ -194,13 +195,16 @@ const showUploadOverlay = () => {
   overlay.innerHTML = `
     <div class="modal-content">
       <div class="modal-header">
-        <h2>Add Sticker</h2>
-        <button class="btn close-modal">X</button>
+        <img class="modal-title" src="" alt="Add Sticker" style="max-width: 150px; height: auto; flex: 1; object-fit: contain;">
+        <button class="close-modal" style="background: none; border: none; padding: 0; cursor: pointer;"><img src="" alt="Close" style="width: 50px; height: 50px;"></button>
       </div>
 
       <img id="stickerPreview" src="" alt="Preview" style="max-width: 100%; max-height: 200px; max-width: 200px; display: none; border: 1px solid #ccc; border-radius: 4px; margin: auto;">
 
-      <label for="stickerUpload" class="btn">Choose File</label>
+      <label for="stickerUpload" style="display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer;">
+        <img class="upload-icon-img" src="" alt="Upload" style="width: 100px; height: 100px;">
+        <span style="font-size: 12px; font-weight: normal; color: #666;">choose a file</span>
+      </label>
       <input type="file" id="stickerUpload" style="display: none;" accept=".png, .jpg, .jpeg, .gif, .webp">
       
       <div class="modal-actions">
@@ -211,6 +215,32 @@ const showUploadOverlay = () => {
   `;
 
   document.body.appendChild(overlay);
+
+  // Set background image using proper extension URL
+  const modalContent = overlay.querySelector('.modal-content');
+  if (modalContent) {
+    modalContent.style.backgroundImage = `url('${chrome.runtime.getURL('assets/background.jpg')}')`;
+    modalContent.style.backgroundSize = 'cover';
+    modalContent.style.backgroundPosition = 'center';
+  }
+
+  // Set exit icon for close button
+  const closeBtn = overlay.querySelector('.close-modal img');
+  if (closeBtn) {
+    closeBtn.src = chrome.runtime.getURL('assets/exit-icon.png');
+  }
+
+  // Set title image
+  const titleImg = overlay.querySelector('.modal-title');
+  if (titleImg) {
+    titleImg.src = chrome.runtime.getURL('assets/stickysend-addtitle.png');
+  }
+
+  // Set upload icon
+  const uploadIcon = overlay.querySelector('.upload-icon-img');
+  if (uploadIcon) {
+    uploadIcon.src = chrome.runtime.getURL('assets/upload-icon.png');
+  }
 
   overlay.querySelector('.close-modal').addEventListener('click', () => overlay.remove());
   overlay.querySelector('.switch-upload-button').addEventListener('click', () => showGenerateOverlay());
@@ -288,8 +318,8 @@ const showGenerateOverlay = () => {
   overlay.innerHTML = `
     <div class="modal-content">
       <div class="modal-header">
-        <h2>Add Sticker</h2>
-        <button class="close-modal">X</button>
+        <img class="modal-title" src="" alt="Add Sticker" style="max-width: 150px; height: auto; flex: 1; object-fit: contain;">
+        <button class="close-modal" style="background: none; border: none; padding: 0; cursor: pointer;"><img src="" alt="Close" style="width: 50px; height: 50px;"></button>
       </div>
 
       <p>Describe the sticker you want to generate:</p>
@@ -307,6 +337,26 @@ const showGenerateOverlay = () => {
   `;
 
   document.body.appendChild(overlay);
+
+  // Set background image using proper extension URL
+  const modalContent = overlay.querySelector('.modal-content');
+  if (modalContent) {
+    modalContent.style.backgroundImage = `url('${chrome.runtime.getURL('assets/background.jpg')}')`;
+    modalContent.style.backgroundSize = 'cover';
+    modalContent.style.backgroundPosition = 'center';
+  }
+
+  // Set exit icon for close button
+  const closeBtn = overlay.querySelector('.close-modal img');
+  if (closeBtn) {
+    closeBtn.src = chrome.runtime.getURL('assets/exit-icon.png');
+  }
+
+  // Set title image
+  const titleImg = overlay.querySelector('.modal-title');
+  if (titleImg) {
+    titleImg.src = chrome.runtime.getURL('assets/stickysend-addtitle.png');
+  }
 
   overlay.querySelector('.close-modal').addEventListener('click', () => overlay.remove());
   overlay.querySelector('.switch-upload-button').addEventListener('click', () => showUploadOverlay());
