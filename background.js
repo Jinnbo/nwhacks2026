@@ -51,7 +51,7 @@ function setupRealtimeSubscription(userId) {
         const sticker = payload.new;
         if (sticker && sticker.image_url) {
           const scary = sticker.scary || false;
-          sendStickerToAllTabs(sticker.image_url, scary);
+          sendStickerToActiveTab(sticker.image_url, scary);
         }
       }
     )
@@ -79,43 +79,30 @@ function cleanupRealtimeSubscription() {
   stopKeepaliveAlarm();
 }
 
-// Send sticker to all tabs via content scripts
-function sendStickerToAllTabs(imageUrl, scary) {
-  const scaryBool = scary || false;
-  console.log('[Background] Sending sticker to all tabs:', imageUrl, 'scary:', scaryBool);
+function sendStickerToActiveTab(imageUrl, scary) {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs.length === 0) return;
+    const tab = tabs[0];
 
-  chrome.tabs.query({}, (tabs) => {
-    if (chrome.runtime.lastError) {
-      console.error('[Background] Error querying tabs:', chrome.runtime.lastError);
-      return;
-    }
+    // Skip chrome:// and extension pages
+    if (!tab.url || tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://')) return;
 
-    console.log(`[Background] Found ${tabs.length} tabs`);
-
-    tabs.forEach((tab) => {
-      // Skip chrome:// and extension pages
-      if (tab.url && !tab.url.startsWith('chrome://') && !tab.url.startsWith('chrome-extension://')) {
-        console.log(`[Background] Sending message to tab ${tab.id} (${tab.url})`);
-
-        chrome.tabs.sendMessage(
-          tab.id,
-          {
-            type: 'SHOW_STICKER',
-            imageUrl: imageUrl,
-            scary: scaryBool
-          },
-          (response) => {
-            if (chrome.runtime.lastError) {
-              // Content script not loaded, inject it directly
-              console.log(`[Background] Content script not loaded on tab ${tab.id}, injecting script`);
-              injectStickerScript(tab.id, imageUrl, scaryBool);
-            } else {
-              console.log(`[Background] Sticker sent to tab ${tab.id}, response:`, response);
-            }
-          }
-        );
+    chrome.tabs.sendMessage(
+      tab.id,
+      {
+        type: 'SHOW_STICKER',
+        imageUrl: imageUrl,
+        scary: scary
+      },
+      (response) => {
+        if (chrome.runtime.lastError) {
+          console.log(`[Background] Content script not loaded on tab ${tab.id}, injecting script`);
+          injectStickerScript(tab.id, imageUrl, scary);
+        } else {
+          console.log(`[Background] Sticker sent to tab ${tab.id}, response:`, response);
+        }
       }
-    });
+    );
   });
 }
 

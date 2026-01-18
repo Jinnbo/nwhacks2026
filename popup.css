@@ -304,18 +304,18 @@ button:active {
   box-shadow: 0 0 8px 3px rgba(255,0,0,0.75);
 }
 
-/* Send button image styles */
-#sendStickerBtn {
+/* Send button and add image button styles */
+#sendStickerBtn, #addBtn {
   transition: transform 0.15s ease, opacity 0.15s ease;
   user-select: none;
 }
 
-#sendStickerBtn:hover {
+#sendStickerBtn:hover, #addBtn:hover {
   transform: scale(1.05);
   opacity: 0.9;
 }
 
-#sendStickerBtn:active {
+#sendStickerBtn:active, #addBtn:active {
   transform: scale(0.95);
   opacity: 0.8;
 }

@@ -1,27 +1,6 @@
 const showJumpScare = async (gifURL, audioURL) => {
-  // Check if this sticker has already been shown/closed in any tab
-  try {
-    const stored = await chrome.storage.local.get(['shownScaryStickers']);
-    const shownStickers = stored.shownScaryStickers || {};
-    if (shownStickers[gifURL]) {
-      console.log('Scary sticker already shown/closed, skipping:', gifURL);
-      return;
-    }
-  } catch (e) {
-    console.log('Could not check shown stickers:', e);
-  }
-
-  const overlay = document.createElement('div');
-  overlay.className = 'overlay';
-  overlay.innerHTML = `
-      <img src="${gifURL}" 
-          alt="GIF" 
-          style="width: 1000px; height: auto;">
-      <button class="close-button" id="close-overlay">X</button>
-  `;
-
   const audio = new Audio(audioURL);
-  audio.loop = true;
+  audio.loop = false;
   audio.volume = 1.0;
 
   let overlayDisplayed = false;
@@ -214,7 +193,7 @@ const showUploadOverlay = () => {
       <input type="file" id="stickerUpload" style="display: none;" accept=".png, .jpg, .jpeg, .gif, .webp">
       
       <div class="modal-actions">
-        <button class="btn switch-upload-button">Generate</button>
+        <button class="btn switch-upload-button">Generate Instead</button>
         <button class="btn btn-secondary confirm-btn">Confirm</button>
       </div>
     </div>
@@ -310,7 +289,7 @@ const showGenerateOverlay = () => {
       <div id="generate-status" style="display: none; padding: 8px; border-radius: 4px; margin: 8px 0;"></div>
 
       <div class="modal-actions">
-        <button class="btn switch-upload-button">Upload</button>
+        <button class="btn switch-upload-button">Upload Instead</button>
         <button class="btn-secondary confirm-button">Generate</button>
       </div>
     </div>

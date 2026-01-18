@@ -803,10 +803,10 @@ function initializeApp() {
   });
 }
 
-const testBtn = document.getElementById("testBtn");
+const addBtn = document.getElementById("addBtn");
 
-testBtn.addEventListener("click", () => {
-  console.log("Test button clicked");
+addBtn.addEventListener("click", () => {
+  console.log("Add button clicked");
 
   // Send a message to the content script
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {

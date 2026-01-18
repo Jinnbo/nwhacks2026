@@ -1,51 +1,48 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="popup.css">
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <img
-      src="assets/star_mascot.png"
-      alt="Mascot"
-      class="popup-mascot"
-    />
-    <img
-      src="assets/stickysend-logo.png"
-      alt="Sticky Send"
-      class="popup-logo"
-    />
-    <div id="loginContainer">
-      <button class="btn-secondary" id="loginBtn">Login with Google</button>
-    </div>
-    <div id="loggedInContainer">
-      <div id="stickerBanner" class="sticker-banner"></div>
-      <div class="user-info" id="userInfo"></div>
-      <!-- users dropdown moved to bottom to avoid auto-submit on selection -->
-      <div id="stickersContainer" style="margin-top:12px;">
-        <div style="font-weight:600; margin-bottom:6px;">Choose a sticker</div>
-        <div id="stickersGallery" style="display:flex; gap:8px; flex-wrap:wrap; max-height:330px; overflow:auto;">
-          <div class="loading">Loading stickers...</div>
-        </div>
-      </div>
 
-      <!-- Users dropdown and send button in same row -->
-      <div id="usersListContainer" style="margin-top:12px;">
-        <div id="usersListLoading" class="loading">Loading users...</div>
-        <div id="controlsRow" style="display:flex; gap:8px; align-items:center; width:100%;">
-          <div id="usersDropdown" class="cute-dropdown" style="width:80%; flex-shrink:0;">
-            <div id="usersSelected" class="dropdown-trigger">Select user ▾</div>
-            <div id="usersList" class="users-list" style="display:none"></div>
-          </div>
-          <img id="sendStickerBtn" src="assets/send-icon.png" alt="Send Sticker" style="flex:1; min-width:0; cursor:pointer; max-height:48px; object-fit:contain;" />
-        </div>
-      </div>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="style.css">
+</head>
 
-      <img id="testBtn" src="assets/add-icon.png" alt="Test" style="position:fixed; top:20px; right:20px; width:40px; height:40px; cursor:pointer; z-index:1400; object-fit:contain;" />
+<body>
+  <img src="assets/star_mascot.png" alt="Mascot" class="popup-mascot" />
+  <img src="assets/stickysend-logo.png" alt="Sticky Send" class="popup-logo" />
+  <div id="loginContainer">
+    <button class="btn-secondary" id="loginBtn">Login with Google</button>
+  </div>
+  <div id="loggedInContainer">
+    <div id="stickerBanner" class="sticker-banner"></div>
+    <div class="user-info" id="userInfo"></div>
+    <!-- users dropdown moved to bottom to avoid auto-submit on selection -->
+    <div id="stickersContainer" style="margin-top:12px;">
+      <div style="font-weight:600; margin-bottom:6px;">Choose a sticker</div>
+      <div id="stickersGallery" style="display:flex; gap:8px; flex-wrap:wrap; max-height:330px; overflow:auto;">
+        <div class="loading">Loading stickers...</div>
+      </div>
     </div>
-    <script src="supabase.js"></script>
-    <script src="config.js"></script>
-    <script type="module" src="popup.js"></script>
-  </body>
+
+    <!-- Users dropdown and send button in same row -->
+    <div id="usersListContainer" style="margin-top:12px;">
+      <div id="usersListLoading" class="loading">Loading users...</div>
+      <div id="controlsRow" style="display:flex; gap:8px; align-items:center; width:100%;">
+        <div id="usersDropdown" class="cute-dropdown" style="width:80%; flex-shrink:0;">
+          <div id="usersSelected" class="dropdown-trigger">Select user ▾</div>
+          <div id="usersList" class="users-list" style="display:none"></div>
+        </div>
+        <img id="sendStickerBtn" src="assets/send-icon.png" alt="Send Sticker"
+          style="flex:1; min-width:0; cursor:pointer; max-height:48px; object-fit:contain;" />
+      </div>
+    </div>
+
+    <img id="addBtn" src="assets/add-icon.png" alt="Test"
+      style="position:fixed; top:20px; right:20px; width:40px; height:40px; cursor:pointer; z-index:1400; object-fit:contain;" />
+  </div>
+  <script src="supabase.js"></script>
+  <script src="config.js"></script>
+  <script type="module" src="popup.js"></script>
+</body>
+
 </html>
