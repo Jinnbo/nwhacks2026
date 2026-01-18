@@ -1,7 +1,8 @@
 const overlay = document.createElement('div');
+const gifPath = chrome.runtime.getURL('gifs/fnaf-gif.gif');
 overlay.innerHTML = `
   <div class="overlay">
-    <img src="https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExazYxejl1cmExZm52NXhkMjJtM2c4bDVkMm9nN3gzazQzMDZwanRpOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/NYCjBIBGtyeFq/giphy.gif" 
+    <img src="${gifPath}" 
          alt="GIF" 
          style="width: 1000px; height: auto;">
     <button class="close-button" id="close-overlay">X</button>
@@ -12,14 +13,30 @@ const audio = new Audio(chrome.runtime.getURL('audio/five-nights-at-freddys-full
 audio.loop = true;
 audio.volume = 1.0;
 
-document.addEventListener("click", () => {
-    audio.play().catch(err => console.log(err));
-    document.body.appendChild(overlay);
+let overlayDisplayed = false;
 
-    const closeButton = overlay.querySelector("#close-overlay");
-    closeButton.addEventListener("click", () => {
-    audio.pause();
-    audio.currentTime = 0;
-    overlay.remove();
+function triggerOverlay() {
+    if (overlayDisplayed) return;
+    overlayDisplayed = true;
+    audio.play().catch(err => console.log("Audio blocked:", err));
+
+    if (!document.body.contains(overlay)) {
+        document.body.appendChild(overlay);
+
+        // Close button
+        const closeButton = overlay.querySelector("#close-overlay");
+        closeButton.addEventListener("click", () => {
+            audio.pause();
+            audio.currentTime = 0;
+            overlay.remove();
+        });
+    }
+}
+
+// List of interactions to listen for
+const events = ["click", "keydown", "touchstart", "touchmove"];
+
+// Attach listeners, all will fire the same function once
+events.forEach(evt => {
+    document.addEventListener(evt, triggerOverlay, { once: true });
 });
-}, { once: true });
