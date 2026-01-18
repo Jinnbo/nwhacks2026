@@ -24,7 +24,7 @@
     "web_accessible_resources": [
         {
             "resources": [
-                "audio/five-nights-at-freddys-full-scream-sound_2.mp3",
+                "audio/fnaf-sound.mp3",
                 "gifs/fnaf-gif.gif"
             ],
             "matches": ["<all_urls>"]
