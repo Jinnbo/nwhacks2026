@@ -136,63 +136,75 @@ chrome.runtime.onMessage.addListener((msg) => {
 
 const showUploadOverlay = () => {
   // Remove generate overlay if it exists
-  const existingGenerate = document.querySelector('.generate-overlay');
+  const existingGenerate = document.querySelector('.generate-modal');
   if (existingGenerate) existingGenerate.remove();
 
   // Check if upload overlay exists
-  let existing = document.querySelector('.upload-overlay');
+  let existing = document.querySelector('.upload-modal');
   if (existing) {
     existing.remove(); // toggle
     return;
   }
 
   const overlay = document.createElement('div');
-  overlay.className = 'upload-overlay';
+  overlay.className = 'upload-modal';
   overlay.innerHTML = `
-    <div class="upload-overlay-content">
-      <button class="close-upload-overlay">X</button>
-      <h2>Add Sticker</h2>
-      <button class="upload-button">Upload</button>
-      <button class="switch-upload-button">Generate</button>
-      <button class="confirm-button">Confirm</button>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Add Sticker</h2>
+        <button class="btn close-modal">X</button>
+      </div>
+      <label for="stickerUpload" class="btn">Choose File</label>
+      <input type="file" id="stickerUpload" style="display: none;" accept=".png, .jpg, .jpeg, .gif">
+      <div class="modal-actions">
+        <button class="btn switch-upload-button">Generate</button>
+        <button class="btn btn-secondary confirm-btn">Confirm</button>
+      </div>
     </div>
   `;
 
   document.body.appendChild(overlay);
 
-  overlay.querySelector('.close-upload-overlay').addEventListener('click', () => overlay.remove());
+  overlay.querySelector('.close-modal').addEventListener('click', () => overlay.remove());
   overlay.querySelector('.switch-upload-button').addEventListener('click', () => showGenerateOverlay());
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+  const input = document.getElementById('stickerUpload');
+  input.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    console.log(file.name, file.type, file.size);
+    // DO SOMETHING WITH THE FILE HERE //
+  });
 };
 
 const showGenerateOverlay = () => {
   // Remove upload overlay if it exists
-  const existingUpload = document.querySelector('.upload-overlay');
+  const existingUpload = document.querySelector('.upload-modal');
   if (existingUpload) existingUpload.remove();
 
   // Check if generate overlay exists
-  let existing = document.querySelector('.generate-overlay');
+  let existing = document.querySelector('.generate-modal');
   if (existing) {
     existing.remove(); // toggle
     return;
   }
 
   const overlay = document.createElement('div');
-  overlay.className = 'generate-overlay';
+  overlay.className = 'generate-modal';
   overlay.innerHTML = `
-    <div class="generate-overlay-content">
-      <button class="close-generate-overlay">X</button>
+    <div class="modal-content">
+      <button class="close-modal">X</button>
       <h2>Add Sticker</h2>
       <p>Describe the sticker you want to generate:</p>
       <textarea class="sticker-prompt-input" rows="4" cols="50" placeholder="E.g., A cute panda wearing sunglasses"></textarea>
       <button class="switch-upload-button">Upload</button>
-      <button class="confirm-button">Confirm</button>
+      <button class="btn-secondary confirm-button">Confirm</button>
     </div>
   `;
 
   document.body.appendChild(overlay);
 
-  overlay.querySelector('.close-generate-overlay').addEventListener('click', () => overlay.remove());
+  overlay.querySelector('.close-modal').addEventListener('click', () => overlay.remove());
   overlay.querySelector('.switch-upload-button').addEventListener('click', () => showUploadOverlay());
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
 };

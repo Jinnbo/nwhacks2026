@@ -27,7 +27,7 @@
     z-index: 2147483648;
 }
 
-.upload-overlay, .generate-overlay {
+.generate-modal, .upload-modal {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.6);
@@ -37,7 +37,17 @@
     z-index: 9999;
 }
 
-.upload-overlay-content, .generate-overlay-content {
+.modal-header {
+    display: flex;            /* use Flexbox */
+    justify-content: space-between; /* push items to edges */
+    padding-bottom: 1rem;     /* optional spacing below the header */
+}
+
+.modal-header h2 {
+    margin: 0; /* remove default margin so spacing works nicely */
+}
+
+.modal-content {
     background: #fff;
     padding: 24px;
     border-radius: 8px;
@@ -45,4 +55,65 @@
     width: 90%;
     text-align: center;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+
+    display: flex;           /* enable Flexbox */
+    flex-direction: column;  /* stack children vertically */
+    gap: 16px;               /* spacing between children */
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end; /* pushes button to right */
+  gap: 8px;                 /* spacing between buttons */
+  margin-top: auto;
+}
+
+.btn {
+    padding: .6em 1.2em;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.2s ease;
+}
+.btn:hover {
+    background: rgb(161, 161, 161)
+}
+.btn:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.btn-primary {
+    padding: .6em 1.2em;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.2s ease;
+    background: rgb(146, 204, 118);
+    color: white;
+}
+.btn-primary:hover {
+    background: rgb(96, 141, 74);
+}
+.btn-primary:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.btn-secondary {
+    padding: .6em 1.2em;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.2s ease;
+    background: rgb(161, 139, 192);
+    color: white;
+}
+.btn-secondary:active {
+    transform: scale(0.95);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.btn-secondary:hover {
+    background: rgb(100, 80, 129);
 }
