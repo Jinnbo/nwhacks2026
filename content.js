@@ -154,8 +154,12 @@ const showUploadOverlay = () => {
         <h2>Add Sticker</h2>
         <button class="btn close-modal">X</button>
       </div>
+
+      <img id="stickerPreview" src="" alt="Preview" style="max-width: 100%; max-height: 200px; max-width: 200px; display: none; border: 1px solid #ccc; border-radius: 4px; margin: auto;">
+
       <label for="stickerUpload" class="btn">Choose File</label>
       <input type="file" id="stickerUpload" style="display: none;" accept=".png, .jpg, .jpeg, .gif">
+      
       <div class="modal-actions">
         <button class="btn switch-upload-button">Generate</button>
         <button class="btn btn-secondary confirm-btn">Confirm</button>
@@ -170,10 +174,33 @@ const showUploadOverlay = () => {
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
 
   const input = document.getElementById('stickerUpload');
+  const preview = document.getElementById('stickerPreview');
+
   input.addEventListener('change', (event) => {
     const file = event.target.files[0];
-    console.log(file.name, file.type, file.size);
-    // DO SOMETHING WITH THE FILE HERE //
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        preview.src = e.target.result;   // set image src
+        preview.style.display = 'block'; // make it visible
+      };
+      reader.readAsDataURL(file);
+    } else {
+      preview.src = '';
+      preview.style.display = 'none';
+    }
+  });
+
+  const confirmButton = overlay.querySelector('.confirm-btn');
+  confirmButton.addEventListener('click', () => {
+    const file = input.files[0];
+    if (!file) {
+      alert('Please select a file first.');
+      return;
+    }
+
+    console.log("FILE SELECTED:", file.name);
+    // You can now do whatever you need with the file here
   });
 };
 
