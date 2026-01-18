@@ -135,35 +135,64 @@ chrome.runtime.onMessage.addListener((msg) => {
 });
 
 const showUploadOverlay = () => {
-  // Check if overlay already exists
+  // Remove generate overlay if it exists
+  const existingGenerate = document.querySelector('.generate-overlay');
+  if (existingGenerate) existingGenerate.remove();
+
+  // Check if upload overlay exists
   let existing = document.querySelector('.upload-overlay');
   if (existing) {
-    // If overlay exists, remove it (toggle behavior)
-    existing.remove();
+    existing.remove(); // toggle
     return;
   }
 
-  // Create overlay
   const overlay = document.createElement('div');
   overlay.className = 'upload-overlay';
   overlay.innerHTML = `
     <div class="upload-overlay-content">
-      <h2>Upload Overlay</h2>
-      <p>Add your content here</p>
-      <button class="close-upload-overlay">Close</button>
+      <button class="close-upload-overlay">X</button>
+      <h2>Add Sticker</h2>
+      <button class="upload-button">Upload</button>
+      <button class="switch-upload-button">Generate</button>
+      <button class="confirm-button">Confirm</button>
     </div>
   `;
 
-  // Append overlay to body
   document.body.appendChild(overlay);
 
-  // Close button behavior
-  overlay.querySelector('.close-upload-overlay').addEventListener('click', () => {
-    overlay.remove();
-  });
+  overlay.querySelector('.close-upload-overlay').addEventListener('click', () => overlay.remove());
+  overlay.querySelector('.switch-upload-button').addEventListener('click', () => showGenerateOverlay());
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+};
 
-  // Optional: click outside content closes overlay
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.remove();
-  });
+const showGenerateOverlay = () => {
+  // Remove upload overlay if it exists
+  const existingUpload = document.querySelector('.upload-overlay');
+  if (existingUpload) existingUpload.remove();
+
+  // Check if generate overlay exists
+  let existing = document.querySelector('.generate-overlay');
+  if (existing) {
+    existing.remove(); // toggle
+    return;
+  }
+
+  const overlay = document.createElement('div');
+  overlay.className = 'generate-overlay';
+  overlay.innerHTML = `
+    <div class="generate-overlay-content">
+      <button class="close-generate-overlay">X</button>
+      <h2>Add Sticker</h2>
+      <p>Describe the sticker you want to generate:</p>
+      <textarea class="sticker-prompt-input" rows="4" cols="50" placeholder="E.g., A cute panda wearing sunglasses"></textarea>
+      <button class="switch-upload-button">Upload</button>
+      <button class="confirm-button">Confirm</button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  overlay.querySelector('.close-generate-overlay').addEventListener('click', () => overlay.remove());
+  overlay.querySelector('.switch-upload-button').addEventListener('click', () => showUploadOverlay());
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
 };

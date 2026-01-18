@@ -27,7 +27,7 @@
     z-index: 2147483648;
 }
 
-.upload-overlay {
+.upload-overlay, .generate-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.6);
@@ -37,7 +37,7 @@
     z-index: 9999;
 }
 
-.upload-overlay-content {
+.upload-overlay-content, .generate-overlay-content {
     background: #fff;
     padding: 24px;
     border-radius: 8px;
