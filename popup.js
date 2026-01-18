@@ -634,6 +634,49 @@ function initializeApp() {
     }
   }
 
+  // Show success banner for sent stickers
+  function showSuccessBanner(displayName) {
+    if (!successBanner) return;
+
+    const bannerContent = document.createElement("div");
+    bannerContent.className = "success-banner-content";
+
+    const message = document.createElement("div");
+    message.className = "success-banner-message";
+    message.textContent = `Sticker sent to ${displayName}!`;
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "success-banner-close";
+    closeBtn.innerHTML = "×";
+    closeBtn.setAttribute("aria-label", "Close");
+    closeBtn.addEventListener("click", () => {
+      hideSuccessBanner();
+    });
+
+    bannerContent.appendChild(message);
+    bannerContent.appendChild(closeBtn);
+
+    successBanner.innerHTML = "";
+    successBanner.appendChild(bannerContent);
+    successBanner.classList.add("show");
+
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      hideSuccessBanner();
+    }, 5000);
+  }
+
+  // Hide success banner
+  function hideSuccessBanner() {
+    if (successBanner) {
+      successBanner.classList.remove("show");
+      // Clear content after animation
+      setTimeout(() => {
+        successBanner.innerHTML = "";
+      }, 300);
+    }
+  }
+
   // Handle user click - create sticker record
   async function handleUserClick(recipientId, displayName, imageUrl, scary) {
     try {
@@ -677,7 +720,7 @@ function initializeApp() {
 
       // Success!
       console.log("Sticker sent successfully:", data);
-      alert(`✓ Sticker sent to ${displayName}!`);
+      showSuccessBanner(displayName);
       return true;
     } catch (error) {
       console.error("Error in handleUserClick:", error);
