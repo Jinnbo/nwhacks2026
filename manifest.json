@@ -1,11 +1,16 @@
 {
-    "name": "Hello TEST",
-    "description": "Base Level Extension",
+    "name": "Sticky Send",
+    "description": "A Chrome extension to send stickers and silly surprises to your friends while browsing the web.",
     "version": "1.0",
     "manifest_version": 3,
+    "icons": {
+        "16": "assets/star_mascot.png",
+        "48": "assets/star_mascot.png",
+        "128": "assets/star_mascot.png"
+    },
     "action": {
         "default_popup": "hello.html",
-        "default_icon": "hello_extensions.png"
+        "default_icon": "assets/star_mascot.png"
     },
     "permissions": [
         "identity",
