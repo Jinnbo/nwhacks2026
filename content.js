@@ -211,7 +211,7 @@ const showUploadOverlay = () => {
       <img id="stickerPreview" src="" alt="Preview" style="max-width: 100%; max-height: 200px; max-width: 200px; display: none; border: 1px solid #ccc; border-radius: 4px; margin: auto;">
 
       <label for="stickerUpload" class="btn">Choose File</label>
-      <input type="file" id="stickerUpload" style="display: none;" accept=".png, .jpg, .jpeg, .gif">
+      <input type="file" id="stickerUpload" style="display: none;" accept=".png, .jpg, .jpeg, .gif, .webp">
       
       <div class="modal-actions">
         <button class="btn switch-upload-button">Generate</button>
