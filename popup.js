@@ -408,14 +408,13 @@ function initializeApp() {
             const thumb = document.createElement("img");
             thumb.src = url;
             thumb.alt = `sticker-${fname}`;
-            thumb.style.width = "72px";
-            thumb.style.height = "72px";
-            thumb.style.objectFit = "cover";
-            thumb.style.cursor = "pointer";
-            thumb.style.border = "2px solid transparent";
+            // use CSS class for sizing/hover/selected styles
+            thumb.className = "sticker-thumb";
+            // keep title for accessibility
             thumb.title = `${r.scary ? "🔥 Scary sticker" : "Sticker"} • ${r.created_at || ""}`;
 
-            if (r.scary) thumb.style.boxShadow = "0 0 6px 2px rgba(255,0,0,0.6)";
+            // mark scary stickers with a modifier class
+            if (r.scary) thumb.classList.add("sticker-scary");
 
             thumb.addEventListener("error", () => {
               thumb.style.opacity = "0.4";
@@ -424,9 +423,9 @@ function initializeApp() {
 
             thumb.addEventListener("click", () => {
               selectedStickerUrl = url;
-              // clear selection across gallery
-              stickersGallery.querySelectorAll("img").forEach((img) => (img.style.border = "2px solid transparent"));
-              thumb.style.border = "2px solid #4CAF50";
+              // clear selection across gallery (use class-based selection)
+              stickersGallery.querySelectorAll("img.sticker-thumb").forEach((img) => img.classList.remove("selected"));
+              thumb.classList.add("selected");
             });
 
             row.appendChild(thumb);

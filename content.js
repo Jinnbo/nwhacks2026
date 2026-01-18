@@ -154,8 +154,12 @@ const showUploadOverlay = () => {
         <h2>Add Sticker</h2>
         <button class="btn close-modal">X</button>
       </div>
+
+      <img id="stickerPreview" src="" alt="Preview" style="max-width: 100%; max-height: 200px; max-width: 200px; display: none; border: 1px solid #ccc; border-radius: 4px; margin: auto;">
+
       <label for="stickerUpload" class="btn">Choose File</label>
       <input type="file" id="stickerUpload" style="display: none;" accept=".png, .jpg, .jpeg, .gif">
+      
       <div class="modal-actions">
         <button class="btn switch-upload-button">Generate</button>
         <button class="btn btn-secondary confirm-btn">Confirm</button>
@@ -170,10 +174,57 @@ const showUploadOverlay = () => {
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
 
   const input = document.getElementById('stickerUpload');
+  const preview = document.getElementById('stickerPreview');
+
   input.addEventListener('change', (event) => {
     const file = event.target.files[0];
-    console.log(file.name, file.type, file.size);
-    // DO SOMETHING WITH THE FILE HERE //
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        preview.src = e.target.result;   // set image src
+        preview.style.display = 'block'; // make it visible
+      };
+      reader.readAsDataURL(file);
+    } else {
+      preview.src = '';
+      preview.style.display = 'none';
+    }
+  });
+
+  const confirmButton = overlay.querySelector('.confirm-btn');
+  confirmButton.addEventListener('click', async () => {
+    const file = input.files[0];
+    if (!file) {
+      alert('Please select a file first.');
+      return;
+    }
+
+    try {
+      // Create FormData with file and sticker flag
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('sticker', 'true');
+
+      // Make POST request to edge function
+      const response = await fetch('https://xrvicqszlafncvfmqydp.supabase.co/functions/v1/smooth-function', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(errorData.error || `Upload failed with status ${response.status}`);
+      }
+
+      const asset = await response.json();
+      console.log('Upload successful:', asset);
+      
+      // Close modal on success
+      overlay.remove();
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      // Keep modal open on error for user to retry
+    }
   });
 };
 
@@ -193,12 +244,20 @@ const showGenerateOverlay = () => {
   overlay.className = 'generate-modal';
   overlay.innerHTML = `
     <div class="modal-content">
-      <button class="close-modal">X</button>
-      <h2>Add Sticker</h2>
+      <div class="modal-header">
+        <h2>Add Sticker</h2>
+        <button class="close-modal">X</button>
+      </div>
+
       <p>Describe the sticker you want to generate:</p>
-      <textarea class="sticker-prompt-input" rows="4" cols="50" placeholder="E.g., A cute panda wearing sunglasses"></textarea>
-      <button class="switch-upload-button">Upload</button>
-      <button class="btn-secondary confirm-button">Confirm</button>
+
+      <img id="stickerPreview" src="" alt="Preview" style="max-width: 100%; max-height: 200px; max-width: 200px; display: none; border: 1px solid #ccc; border-radius: 4px; margin: auto;">
+      <textarea class="sticker-prompt-input" rows="4" cols="50" placeholder="E.g., A cartoon beaver standing in front of Jupiter"></textarea>
+
+      <div class="modal-actions">
+        <button class="btn switch-upload-button">Upload</button>
+        <button class="btn-secondary confirm-button">Generate</button>
+      </div>
     </div>
   `;
 
@@ -207,4 +266,18 @@ const showGenerateOverlay = () => {
   overlay.querySelector('.close-modal').addEventListener('click', () => overlay.remove());
   overlay.querySelector('.switch-upload-button').addEventListener('click', () => showUploadOverlay());
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+  const confirmButton = overlay.querySelector('.confirm-button');
+  confirmButton.addEventListener('click', () => {
+    const textarea = overlay.querySelector('.sticker-prompt-input');
+    const prompt = textarea.value.trim();
+
+    if (!prompt) {
+      alert('Please enter a prompt first.');
+      return;
+    }
+
+    console.log("GENERATING WITH ", prompt);
+    // DO SOMETHING WITH THE PROMPT HERE
+  });
 };
