@@ -21,20 +21,23 @@
     <div id="loggedInContainer">
       <div id="stickerBanner" class="sticker-banner"></div>
       <div class="user-info" id="userInfo"></div>
-      <div id="usersListContainer">
-        <div id="usersListLoading" class="loading">Loading users...</div>
-        <div id="usersDropdown" class="cute-dropdown">
-          <div id="usersSelected" class="dropdown-trigger">
-            Select user ▾
-          </div>
-          <div id="usersList" class="users-list" style="display:none"></div>
-        </div>
+      <!-- users dropdown moved to bottom to avoid auto-submit on selection -->
       <div id="stickersContainer" style="margin-top:12px;">
         <div style="font-weight:600; margin-bottom:6px;">Choose a sticker</div>
         <div id="stickersGallery" style="display:flex; gap:8px; flex-wrap:wrap; max-height:220px; overflow:auto;">
           <div class="loading">Loading stickers...</div>
         </div>
       </div>
+
+      <!-- users dropdown (moved to bottom) -->
+      <div id="usersListContainer">
+        <div id="usersListLoading" class="loading">Loading users...</div>
+        <div id="usersDropdown" class="cute-dropdown">
+          <div id="usersSelected" class="dropdown-trigger">Select user ▾</div>
+          <div id="usersList" class="users-list" style="display:none"></div>
+        </div>
+      </div>
+
       <!-- Controls: Send button visible; More button is top-right and opens an overlay -->
       <div id="controlsRow" style="display:flex; gap:2px; align-items:center; margin-top:8px;">
         <button id="sendStickerBtn" style="width:100%;">Send Sticker</button>

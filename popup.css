@@ -74,8 +74,8 @@ button:active {
 #usersListContainer {
   width: 100%;
   max-height: 300px;
-  overflow-y: hidden;
-  overflow-x: hidden;
+  /* Allow the absolute-positioned dropdown list to overflow for clickability */
+  overflow: visible;
   margin: 15px 0;
 }
 
@@ -111,6 +111,11 @@ button:active {
 
 .user-item:active {
   transform: scale(0.98);
+}
+
+.user-item.selected {
+  background-color: #e6f9ec;
+  border-color: #4CAF50;
 }
 
 

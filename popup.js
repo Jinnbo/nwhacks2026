@@ -43,6 +43,7 @@ function initializeApp() {
   const usersList = document.getElementById("usersList");
   const usersListLoading = document.getElementById("usersListLoading");
   const usersSelect = document.getElementById("usersSelect");
+  const usersTrigger = document.getElementById("usersSelected");
   const sendStickerBtn = document.getElementById("sendStickerBtn");
   const stickerBanner = document.getElementById("stickerBanner");
   const stickersGallery = document.getElementById("stickersGallery");
@@ -51,6 +52,8 @@ function initializeApp() {
   const moreOverlay = document.getElementById("moreOverlay");
   const moreCloseBtn = document.getElementById("moreCloseBtn");
   let selectedStickerUrl = null;
+  let selectedRecipientId = null;
+  let selectedRecipientName = null;
 
   // Track Realtime channel subscription
   let realtimeChannel = null;
@@ -484,10 +487,30 @@ function initializeApp() {
       // Use display_name if available, otherwise fallback to email
       const displayName = user.display_name || user.email || "Unknown User";
       userItem.textContent = displayName;
+      // store id for selection
+      userItem.dataset.id = user.id;
 
-      // Add click handler
+      // On click: select user but do NOT auto-send
       userItem.addEventListener("click", () => {
-        handleUserClick(user.id, displayName);
+        selectedRecipientId = user.id;
+        selectedRecipientName = displayName;
+
+        // If native select exists, update its value to reflect selection
+        if (usersSelect) {
+          usersSelect.value = user.id;
+        }
+
+        // Update the custom trigger text if present
+        if (usersTrigger) {
+          usersTrigger.textContent = displayName + " ▾";
+        }
+
+        // hide list
+        if (usersList) usersList.style.display = "none";
+
+        // visual selected state
+        usersList.querySelectorAll(".user-item").forEach((el) => el.classList.remove("selected"));
+        userItem.classList.add("selected");
       });
 
       usersList.appendChild(userItem);
@@ -639,6 +662,33 @@ function initializeApp() {
   loginBtn.addEventListener("click", loginWithGoogle);
   logoutBtn.addEventListener("click", logout);
 
+  // If there's a native select for users, use its change event to set the selected recipient
+  if (usersSelect) {
+    usersSelect.addEventListener("change", () => {
+      selectedRecipientId = usersSelect.value || null;
+      selectedRecipientName = usersSelect.options[usersSelect.selectedIndex]
+        ? usersSelect.options[usersSelect.selectedIndex].text
+        : null;
+      // clear any visual selection in custom list (if visible)
+      if (usersList) usersList.querySelectorAll(".user-item").forEach((el) => el.classList.remove("selected"));
+    });
+  }
+
+  // Re-enable custom dropdown trigger/list behavior (if present)
+  if (usersTrigger && usersList) {
+    usersTrigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      usersList.style.display = usersList.style.display === "none" || usersList.style.display === "" ? "flex" : "none";
+    });
+
+    // Close list when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!usersTrigger.contains(e.target) && !usersList.contains(e.target)) {
+        usersList.style.display = "none";
+      }
+    });
+  }
+
   // More overlay toggle behavior: open overlay, close when clicking outside or close button
   if (moreBtn && moreOverlay) {
     moreBtn.addEventListener("click", (e) => {
@@ -671,13 +721,11 @@ function initializeApp() {
     }
   }
 
-  // Send button for dropdown
-  if (sendStickerBtn && usersSelect) {
+  // Send button: uses the selected recipient chosen from the users dropdown
+  if (sendStickerBtn) {
     sendStickerBtn.addEventListener("click", () => {
-      const recipientId = usersSelect.value;
-      const displayName = usersSelect.options[usersSelect.selectedIndex]
-        ? usersSelect.options[usersSelect.selectedIndex].text
-        : "Unknown User";
+      const recipientId = selectedRecipientId;
+      const displayName = selectedRecipientName || "Unknown User";
 
       if (!recipientId) {
         alert("Please select a user to send a sticker to.");
@@ -689,15 +737,15 @@ function initializeApp() {
         handleUserClick(recipientId, displayName, selectedStickerUrl);
       } else {
         // No sticker selected: ask to confirm using default
-        const ok = confirm(
-          "No sticker selected. Send default sticker instead?",
-        );
+        const ok = confirm("No sticker selected. Send default sticker instead?");
         if (ok) {
           handleUserClick(recipientId, displayName);
         }
       }
     });
   }
+
+  // If the custom dropdown (usersList) is present, keep it hidden by default; native <select> handles selection.
 
   // Check auth state when popup opens
   checkAuthState();
@@ -726,17 +774,5 @@ testBtn.addEventListener("click", () => {
   });
 });
 
-const trigger = document.getElementById("usersSelected");
-const list = document.getElementById("usersList");
 
-trigger.addEventListener("click", () => {
-  list.style.display = list.style.display === "none" ? "flex" : "none";
-});
-
-list.addEventListener("click", (e) => {
-  if (!e.target.classList.contains("user-item")) return;
-
-  trigger.textContent = e.target.textContent;
-  list.style.display = "none";
-});
 
