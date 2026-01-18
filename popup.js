@@ -41,6 +41,8 @@ function initializeApp() {
   const loginBtn = document.getElementById('loginBtn');
   const logoutBtn = document.getElementById('logoutBtn');
   const userInfo = document.getElementById('userInfo');
+  const usersList = document.getElementById('usersList');
+  const usersListLoading = document.getElementById('usersListLoading');
 
   // Show login UI
   function showLoginState() {
@@ -58,6 +60,9 @@ function initializeApp() {
     } else {
       userInfo.textContent = 'Logged in';
     }
+    
+    // Fetch and display users list
+    fetchAllUsers(user.id);
   }
 
   // Check authentication state on load
@@ -238,10 +243,118 @@ function initializeApp() {
         alert('Failed to logout: ' + error.message);
       } else {
         showLoginState();
+        // Clear users list
+        usersList.innerHTML = '';
       }
     } catch (error) {
       console.error('Logout error:', error);
       showLoginState();
+      usersList.innerHTML = '';
+    }
+  }
+
+  // Fetch all users from Supabase
+  async function fetchAllUsers(currentUserId) {
+    try {
+      // Show loading state
+      usersListLoading.classList.add('show');
+      usersList.classList.add('empty');
+      
+      // Query the user_list view
+      const { data, error } = await supabase
+        .from('user_list')
+        .select('id, display_name, email')
+        .order('display_name', { ascending: true, nullsFirst: false });
+      
+      if (error) {
+        console.error('Error fetching users:', error);
+        usersList.innerHTML = '<div class="loading">Error loading users</div>';
+        usersListLoading.classList.remove('show');
+        return;
+      }
+      
+      // Filter out current user and render
+      const otherUsers = data.filter(user => user.id !== currentUserId);
+      renderUsersList(otherUsers);
+      
+      usersListLoading.classList.remove('show');
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      usersList.innerHTML = '<div class="loading">Error loading users</div>';
+      usersListLoading.classList.remove('show');
+    }
+  }
+
+  // Render users list
+  function renderUsersList(users) {
+    if (!users || users.length === 0) {
+      usersList.innerHTML = '<div class="loading">No other users found</div>';
+      usersList.classList.remove('empty');
+      return;
+    }
+    
+    usersList.innerHTML = '';
+    usersList.classList.remove('empty');
+    
+    users.forEach(user => {
+      const userItem = document.createElement('div');
+      userItem.className = 'user-item';
+      
+      // Use display_name if available, otherwise fallback to email
+      const displayName = user.display_name || user.email || 'Unknown User';
+      userItem.textContent = displayName;
+      
+      // Add click handler
+      userItem.addEventListener('click', () => {
+        handleUserClick(user.id, displayName);
+      });
+      
+      usersList.appendChild(userItem);
+    });
+  }
+
+  // Handle user click - create sticker record
+  async function handleUserClick(recipientId, displayName) {
+    try {
+      // Get current user session
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
+        console.error('Error getting session:', sessionError);
+        alert('Error: Not logged in. Please log in again.');
+        return;
+      }
+      
+      const senderId = session.user.id;
+      
+      // Hardcoded image URL
+      const imageUrl = 'https://xrvicqszlafncvfmqydp.supabase.co/storage/v1/object/public/sticker/fnaf-gif.gif';
+      
+      // Insert sticker record
+      const { data, error } = await supabase
+        .from('stickers')
+        .insert([
+          {
+            sender_id: senderId,
+            recipient_id: recipientId,
+            image_url: imageUrl
+          }
+        ])
+        .select();
+      
+      if (error) {
+        console.error('Error creating sticker:', error);
+        alert(`Failed to send sticker to ${displayName}:\n${error.message}`);
+        return;
+      }
+      
+      // Success!
+      console.log('Sticker sent successfully:', data);
+      alert(`✓ Sticker sent to ${displayName}!`);
+      
+    } catch (error) {
+      console.error('Error in handleUserClick:', error);
+      alert(`Error sending sticker:\n${error.message}`);
     }
   }
 
