@@ -1,7 +1,7 @@
 // Background service worker for persistent Realtime subscriptions
 // Uses importScripts (no ES modules) to load Supabase UMD build
 
-importScripts('supabase.js', 'config-umd.js');
+importScripts('supabase.js', 'config.js');
 
 // Supabase client instance
 let supabaseClient = null;

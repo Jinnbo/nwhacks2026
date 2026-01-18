@@ -1,6 +1,5 @@
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js';
-
 // Wait for Supabase to be available (loaded via script tag in HTML)
+// Config is loaded via script tag in HTML, so SUPABASE_URL and SUPABASE_ANON_KEY are globals
 // The UMD build exposes 'supabase' as a global with createClient
 let supabase;
 function initSupabase() {
