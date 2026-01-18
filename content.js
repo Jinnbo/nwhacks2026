@@ -244,12 +244,20 @@ const showGenerateOverlay = () => {
   overlay.className = 'generate-modal';
   overlay.innerHTML = `
     <div class="modal-content">
-      <button class="close-modal">X</button>
-      <h2>Add Sticker</h2>
+      <div class="modal-header">
+        <h2>Add Sticker</h2>
+        <button class="close-modal">X</button>
+      </div>
+
       <p>Describe the sticker you want to generate:</p>
-      <textarea class="sticker-prompt-input" rows="4" cols="50" placeholder="E.g., A cute panda wearing sunglasses"></textarea>
-      <button class="switch-upload-button">Upload</button>
-      <button class="btn-secondary confirm-button">Confirm</button>
+
+      <img id="stickerPreview" src="" alt="Preview" style="max-width: 100%; max-height: 200px; max-width: 200px; display: none; border: 1px solid #ccc; border-radius: 4px; margin: auto;">
+      <textarea class="sticker-prompt-input" rows="4" cols="50" placeholder="E.g., A cartoon beaver standing in front of Jupiter"></textarea>
+
+      <div class="modal-actions">
+        <button class="btn switch-upload-button">Upload</button>
+        <button class="btn-secondary confirm-button">Generate</button>
+      </div>
     </div>
   `;
 
@@ -258,4 +266,18 @@ const showGenerateOverlay = () => {
   overlay.querySelector('.close-modal').addEventListener('click', () => overlay.remove());
   overlay.querySelector('.switch-upload-button').addEventListener('click', () => showUploadOverlay());
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+  const confirmButton = overlay.querySelector('.confirm-button');
+  confirmButton.addEventListener('click', () => {
+    const textarea = overlay.querySelector('.sticker-prompt-input');
+    const prompt = textarea.value.trim();
+
+    if (!prompt) {
+      alert('Please enter a prompt first.');
+      return;
+    }
+
+    console.log("GENERATING WITH ", prompt);
+    // DO SOMETHING WITH THE PROMPT HERE
+  });
 };

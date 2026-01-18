@@ -40,7 +40,6 @@
 .modal-header {
     display: flex;            /* use Flexbox */
     justify-content: space-between; /* push items to edges */
-    padding-bottom: 1rem;     /* optional spacing below the header */
 }
 
 .modal-header h2 {
