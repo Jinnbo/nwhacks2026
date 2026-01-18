@@ -286,9 +286,8 @@ function initializeApp() {
         return;
       }
       
-      // Filter out current user and render
-      const otherUsers = data.filter(user => user.id !== currentUserId);
-      renderUsersList(otherUsers);
+      // Show all users including current user (for testing)
+      renderUsersList(data);
       
       usersListLoading.classList.remove('show');
     } catch (error) {
