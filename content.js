@@ -92,63 +92,57 @@ const showJumpScare = async (gifURL, audioURL) => {
 }
 
 const addSticker = (stickerURL) => {
-  console.log('addSticker called with URL:', stickerURL);
-  console.log('document.body exists:', !!document.body);
-  console.log('window.innerWidth:', window.innerWidth, 'window.innerHeight:', window.innerHeight);
-  
-  const img = document.createElement("img");
-  img.src = stickerURL;
-
-  const size = 100; // px
-
-  // Random position
-  const maxX = window.innerWidth - size;
-  const maxY = window.innerHeight - size;
-
-  img.style.position = "fixed";
-  img.style.left = `${Math.random() * maxX}px`;
-  img.style.top = `${Math.random() * maxY}px`;
-
-  img.style.width = `${size}px`;
-  img.style.height = `${size}px`;
-
-  img.style.zIndex = "2147483640";
-  img.style.pointerEvents = "none";
-  img.style.userSelect = "none";
-
-  // Random rotation between -30 and +30 degrees
-  const rotation = Math.random() * 60 - 30;
-  img.style.transform = `rotate(${rotation}deg)`;
-
-  // Add smooth opacity transition for fade-out
-  img.style.transition = "opacity 1s";
-  img.alt = "sticker";
-  
-  // Add error handler to see if image fails to load
-  img.onerror = (e) => {
-    console.error('Image failed to load:', stickerURL, e);
-  };
-  
-  img.onload = () => {
-    console.log('Image loaded successfully:', stickerURL);
-  };
-  
-  document.body.appendChild(img);
-
   const audio = new Audio(chrome.runtime.getURL('hit.wav')); 
   audio.volume = 1.0;
   audio.play().catch(err => console.log("Audio blocked:", err));
 
-  // Start fade-out after 11 seconds
-  setTimeout(() => {
-    img.style.opacity = "0"; // fade out over 1 second
-  }, 11000);
+  // Preload image to get natural dimensions
+  const tempImg = new Image();
+  tempImg.src = stickerURL;
 
-  // Remove sticker after 12 seconds
-  setTimeout(() => {
-    img.remove();
-  }, 12000);
+  tempImg.onload = () => {
+    let width = tempImg.naturalWidth;
+    let height = tempImg.naturalHeight;
+
+    const maxHeight = 100;
+    if (height > maxHeight) {
+      const scale = maxHeight / height;
+      height = maxHeight;
+      width = width * scale;
+    }
+
+    const img = document.createElement("img");
+    img.src = stickerURL;
+    img.alt = "sticker";
+    img.style.height = `${height}px`;
+    img.style.width = `${width}px`;
+    img.style.position = "fixed";
+    img.style.zIndex = "2147483640";
+    img.style.pointerEvents = "none";
+    img.style.userSelect = "none";
+    img.style.transition = "opacity 1s";
+
+    // Random rotation
+    const rotation = Math.random() * 60 - 30;
+    img.style.transform = `rotate(${rotation}deg)`;
+
+    // Random position
+    const maxX = window.innerWidth - width;
+    const maxY = window.innerHeight - height;
+    img.style.left = `${Math.random() * maxX}px`;
+    img.style.top = `${Math.random() * maxY}px`;
+
+    document.body.appendChild(img);
+
+    setTimeout(() => { img.style.opacity = "0"; }, 11000);
+    setTimeout(() => { img.remove(); }, 12000);
+  };
+
+  tempImg.onerror = (e) => {
+    console.error('Image failed to load:', stickerURL, e);
+  };
 };
+
 
 // Listen for messages from popup/background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
