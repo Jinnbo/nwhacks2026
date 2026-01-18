@@ -76,17 +76,15 @@ button:active {
   max-height: 300px;
   /* Allow the absolute-positioned dropdown list to overflow for clickability */
   overflow: visible;
+  position: relative;
   margin: 15px 0;
 }
 
 /* List container */
 .users-list {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-
-  display: flex;
+  /* Render as a fixed-position overlay so it does not change popup layout */
+  position: fixed;
+  display: none; /* toggled via JS */
   flex-direction: column;
   gap: 6px;
 
@@ -94,7 +92,10 @@ button:active {
   border: 2px solid rgb(146, 204, 118);
   border-radius: 14px;
   padding: 6px;
-  z-index: 100;
+  z-index: 9999;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  max-height: 240px;
+  overflow-y: auto;
 }
 
 /* Items */

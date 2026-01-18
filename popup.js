@@ -681,7 +681,37 @@ function initializeApp() {
   if (usersTrigger && usersList) {
     usersTrigger.addEventListener("click", (e) => {
       e.stopPropagation();
-      usersList.style.display = usersList.style.display === "none" || usersList.style.display === "" ? "flex" : "none";
+
+      // Toggle visibility
+      const isHidden = usersList.style.display === "none" || usersList.style.display === "";
+      if (!isHidden) {
+        usersList.style.display = "none";
+        return;
+      }
+
+      // Show list as fixed overlay and clamp it within the viewport so it doesn't expand popup height
+      usersList.style.display = "flex";
+      usersList.style.position = "fixed";
+
+      // Measure trigger and compute a top/left that keeps the list visible
+      const rect = usersTrigger.getBoundingClientRect();
+      const triggerLeft = Math.max(6, rect.left);
+      const triggerWidth = rect.width;
+      const gap = 6;
+      const maxHeight = 240; // same as CSS
+
+      // Default place below the trigger, but clamp so the list stays within the viewport
+      let top = rect.bottom + gap;
+      if (top + maxHeight + gap > window.innerHeight) {
+        // Not enough room below; clamp top so the list fits within the viewport bottom
+        top = Math.max(6, window.innerHeight - maxHeight - gap);
+      }
+
+      // Apply computed position and width
+      usersList.style.left = `${triggerLeft}px`;
+      usersList.style.top = `${top}px`;
+      usersList.style.width = `${triggerWidth}px`;
+      usersList.style.maxHeight = `${maxHeight}px`;
     });
 
     // Close list when clicking outside
