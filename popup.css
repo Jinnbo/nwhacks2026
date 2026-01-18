@@ -209,3 +209,15 @@ button:active {
 .hidden {
   display: none;
 }
+
+.popup-logo {
+  width: 190px; 
+  height: auto;
+  top: 8px;
+  left: 8px;
+}
+
+.popup-mascot {
+  width: 50px; 
+  height: auto;
+}
