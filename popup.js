@@ -375,7 +375,12 @@ function initializeApp() {
         scary.length,
       );
 
-      function renderRow(titleText, items) {
+      // Render one unified scrolling gallery containing two labeled sections:
+      // first 'Stickers' (normal), then 'Scary' (scary). The outer container
+      // (`#stickersGallery`) handles scrolling so inner rows should not.
+      stickersGallery.innerHTML = "";
+
+      function renderSection(titleText, items) {
         const section = document.createElement("div");
         section.style.marginBottom = "8px";
 
@@ -389,8 +394,6 @@ function initializeApp() {
         row.style.display = "flex";
         row.style.gap = "8px";
         row.style.flexWrap = "wrap";
-        row.style.maxHeight = "110px";
-        row.style.overflow = "auto";
 
         if (!items || items.length === 0) {
           const none = document.createElement("div");
@@ -400,11 +403,7 @@ function initializeApp() {
         } else {
           items.forEach((r) => {
             const url = r.image_url;
-            const fname =
-              r.id ||
-              (r.created_at
-                ? new Date(r.created_at).toISOString()
-                : url.split("/").pop());
+            const fname = r.id || (r.created_at ? new Date(r.created_at).toISOString() : url.split("/").pop());
 
             const thumb = document.createElement("img");
             thumb.src = url;
@@ -416,8 +415,7 @@ function initializeApp() {
             thumb.style.border = "2px solid transparent";
             thumb.title = `${r.scary ? "🔥 Scary sticker" : "Sticker"} • ${r.created_at || ""}`;
 
-            if (r.scary)
-              thumb.style.boxShadow = "0 0 6px 2px rgba(255,0,0,0.6)";
+            if (r.scary) thumb.style.boxShadow = "0 0 6px 2px rgba(255,0,0,0.6)";
 
             thumb.addEventListener("error", () => {
               thumb.style.opacity = "0.4";
@@ -426,14 +424,9 @@ function initializeApp() {
 
             thumb.addEventListener("click", () => {
               selectedStickerUrl = url;
-              // clear selection across both rows
-              stickersGallery
-                .querySelectorAll("img")
-                .forEach((img) => (img.style.border = "2px solid transparent"));
+              // clear selection across gallery
+              stickersGallery.querySelectorAll("img").forEach((img) => (img.style.border = "2px solid transparent"));
               thumb.style.border = "2px solid #4CAF50";
-
-              // Intentionally do not render an enlarged preview here.
-              // Keep selection state only — the preview element remains unused.
             });
 
             row.appendChild(thumb);
@@ -444,10 +437,9 @@ function initializeApp() {
         return section;
       }
 
-      stickersGallery.appendChild(
-        renderRow(`Stickers (${normal.length})`, normal),
-      );
-      stickersGallery.appendChild(renderRow(`Scary (${scary.length})`, scary));
+      // stickers (normal) first, then scary
+      stickersGallery.appendChild(renderSection(`Sticker (${normal.length})`, normal));
+      stickersGallery.appendChild(renderSection(`Scary (${scary.length})`, scary));
     } catch (err) {
       console.error("Unexpected error fetching assets from table:", err);
       stickersGallery.innerHTML =
