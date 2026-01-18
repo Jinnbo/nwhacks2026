@@ -83,9 +83,11 @@ const addSticker = (stickerURL) => {
     console.log('Image loaded successfully:', stickerURL);
   };
   
-  console.log('Appending image to body, image element:', img);
   document.body.appendChild(img);
-  console.log('Image appended, checking if in DOM:', document.body.contains(img));
+
+  const audio = new Audio(chrome.runtime.getURL('hit.wav')); 
+  audio.volume = 1.0;
+  audio.play().catch(err => console.log("Audio blocked:", err));
 
   // Start fade-out after 11 seconds
   setTimeout(() => {
@@ -118,6 +120,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 // for (let i = 0; i < 80; i++) {
-//   addSticker("https://images.freeimages.com/image/previews/80a/panda-boy-anime-hood-png-5693574.png?fmt=webp&h=350");
+//   setTimeout(() => {
+//     addSticker("https://images.freeimages.com/image/previews/80a/panda-boy-anime-hood-png-5693574.png?fmt=webp&h=350");
+//   }, i * 1000);
 // }
 // showJumpScare("https://xrvicqszlafncvfmqydp.supabase.co/storage/v1/object/public/sticker/fnaf-gif.gif", "https://www.myinstants.com/en/instant/fnaf-jumpscare-scream/?utm_source=copy&utm_medium=share");

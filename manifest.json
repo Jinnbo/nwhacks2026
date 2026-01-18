@@ -23,5 +23,11 @@
             "css": ["style.css"],
             "all_frames": true
         }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["hit.wav"],
+            "matches": ["<all_urls>"]
+        }
     ]
   }
