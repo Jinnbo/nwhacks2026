@@ -55,6 +55,33 @@ function initializeApp() {
   let selectedStickerScary = null;
   let selectedRecipientId = null;
   let selectedRecipientName = null;
+  const SCARY_COOLDOWN_MS = 60 * 1000; // 60s cooldown per recipient
+
+  // Cooldown helpers for scary stickers (per-recipient)
+  function getLastScarySent(recipientId) {
+    try {
+      const v = localStorage.getItem(`lastScarySent_${recipientId}`);
+      return v ? parseInt(v, 10) : 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  function setLastScarySent(recipientId, ts) {
+    try {
+      localStorage.setItem(`lastScarySent_${recipientId}`, String(ts));
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  function canSendScary(recipientId) {
+    const last = getLastScarySent(recipientId) || 0;
+    const now = Date.now();
+    const diff = now - last;
+    if (diff >= SCARY_COOLDOWN_MS) return { ok: true };
+    return { ok: false, remainingMs: SCARY_COOLDOWN_MS - diff };
+  }
 
   // Track Realtime channel subscription
   let realtimeChannel = null;
@@ -649,15 +676,17 @@ function initializeApp() {
       if (error) {
         console.error("Error creating sticker:", error);
         alert(`Failed to send sticker to ${displayName}:\n${error.message}`);
-        return;
+        return false;
       }
 
       // Success!
       console.log("Sticker sent successfully:", data);
       alert(`✓ Sticker sent to ${displayName}!`);
+      return true;
     } catch (error) {
       console.error("Error in handleUserClick:", error);
       alert(`Error sending sticker:\n${error.message}`);
+      return false;
     }
   }
 
@@ -756,7 +785,7 @@ function initializeApp() {
 
   // Send button: uses the selected recipient chosen from the users dropdown
   if (sendStickerBtn) {
-    sendStickerBtn.addEventListener("click", () => {
+    sendStickerBtn.addEventListener("click", async () => {
       const recipientId = selectedRecipientId;
       const displayName = selectedRecipientName || "Unknown User";
 
@@ -765,14 +794,30 @@ function initializeApp() {
         return;
       }
 
+      // If the selected sticker is scary, enforce cooldown per recipient
+      if (selectedStickerScary) {
+        const check = canSendScary(recipientId);
+        if (!check.ok) {
+          const seconds = Math.ceil(check.remainingMs / 1000);
+          alert(`You can only send scary stickers to this user once every ${Math.round(SCARY_COOLDOWN_MS/1000)}s. Please wait ${seconds}s.`);
+          return;
+        }
+      }
+
       // Use the selected sticker if available
       if (selectedStickerUrl) {
-        handleUserClick(recipientId, displayName, selectedStickerUrl, selectedStickerScary);
+        const ok = await handleUserClick(recipientId, displayName, selectedStickerUrl, selectedStickerScary);
+        if (ok && selectedStickerScary) {
+          setLastScarySent(recipientId, Date.now());
+        }
       } else {
-        // No sticker selected: ask to confirm using default
-        const ok = confirm("No sticker selected. Send default sticker instead?");
-        if (ok) {
-          handleUserClick(recipientId, displayName, null, false);
+        // No sticker selected: ask to confirm using default (default is not scary)
+        const okConfirm = confirm("No sticker selected. Send default sticker instead?");
+        if (okConfirm) {
+          const ok = await handleUserClick(recipientId, displayName, null, false);
+          if (ok && false) {
+            /* no-op */
+          }
         }
       }
     });
