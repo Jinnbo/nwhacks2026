@@ -38,7 +38,6 @@ function initializeApp() {
   const loginContainer = document.getElementById("loginContainer");
   const loggedInContainer = document.getElementById("loggedInContainer");
   const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
   const userInfo = document.getElementById("userInfo");
   const usersList = document.getElementById("usersList");
   const usersListLoading = document.getElementById("usersListLoading");
@@ -48,9 +47,6 @@ function initializeApp() {
   const stickerBanner = document.getElementById("stickerBanner");
   const stickersGallery = document.getElementById("stickersGallery");
   const stickerPreview = document.getElementById("stickerPreview");
-  const moreBtn = document.getElementById("moreBtn");
-  const moreOverlay = document.getElementById("moreOverlay");
-  const moreCloseBtn = document.getElementById("moreCloseBtn");
   let selectedStickerUrl = null;
   let selectedStickerScary = null;
   let selectedRecipientId = null;
@@ -692,7 +688,6 @@ function initializeApp() {
 
   // Event listeners
   loginBtn.addEventListener("click", loginWithGoogle);
-  logoutBtn.addEventListener("click", logout);
 
   // If there's a native select for users, use its change event to set the selected recipient
   if (usersSelect) {
@@ -749,38 +744,6 @@ function initializeApp() {
         usersList.style.display = "none";
       }
     });
-  }
-
-  // More overlay toggle behavior: open overlay, close when clicking outside or close button
-  if (moreBtn && moreOverlay) {
-    moreBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      moreOverlay.style.display = "flex"; // overlay uses flex centering
-    });
-
-    // Close via overlay background click
-    moreOverlay.addEventListener("click", (evt) => {
-      // If user clicked the background (overlay) itself, close
-      if (evt.target === moreOverlay) {
-        moreOverlay.style.display = "none";
-      }
-    });
-
-    // Close button inside the card
-    if (moreCloseBtn) {
-      moreCloseBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        moreOverlay.style.display = "none";
-      });
-    }
-
-    // Prevent clicks inside the card from closing the overlay
-    const moreCard = document.getElementById("moreCard");
-    if (moreCard) {
-      moreCard.addEventListener("click", (e) => {
-        e.stopPropagation();
-      });
-    }
   }
 
   // Send button: uses the selected recipient chosen from the users dropdown
