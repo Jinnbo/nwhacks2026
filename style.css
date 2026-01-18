@@ -4,7 +4,7 @@
     left: 0;                  /* start at the left */
     width: 100vw;             /* full viewport width */
     height: 100vh;            /* full viewport height */
-    background-color: rgba(0, 0, 0, 0.7); /* semi-transparent dark background */
+    background-color: rgb(0, 0, 0); /* dark background */
     color: white;             /* text color */
     display: flex;            /* use flex to center content */
     align-items: center;      /* vertically center */

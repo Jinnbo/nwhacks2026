@@ -1,16 +1,14 @@
-const showJumpScare = (gifPath, audioPath) => {
+const showJumpScare = (gifURL, audioURL) => {
   const overlay = document.createElement('div');
-  gifPath = chrome.runtime.getURL(gifPath);
+  overlay.className = 'overlay';
   overlay.innerHTML = `
-    <div class="overlay">
-      <img src="https://xrvicqszlafncvfmqydp.supabase.co/storage/v1/object/public/sticker/fnaf-gif.gif" 
+      <img src="${gifURL}" 
           alt="GIF" 
           style="width: 1000px; height: auto;">
       <button class="close-button" id="close-overlay">X</button>
-    </div>
   `;
 
-  const audio = new Audio(chrome.runtime.getURL(audioPath));
+  const audio = new Audio(audioURL);
   audio.loop = true;
   audio.volume = 1.0;
 
@@ -43,8 +41,6 @@ const showJumpScare = (gifPath, audioPath) => {
   });
 }
 
-// showJumpScare("gifs/fnaf-gif.gif", "audio/fnaf-sound.mp3");
-
 const addSticker = (stickerURL) => {
   const img = document.createElement("img");
   img.src = stickerURL;
@@ -62,7 +58,7 @@ const addSticker = (stickerURL) => {
   img.style.width = `${size}px`;
   img.style.height = `${size}px`;
 
-  img.style.zIndex = "2147483647";
+  img.style.zIndex = "2147483640";
   img.style.pointerEvents = "none";
   img.style.userSelect = "none";
 
@@ -75,17 +71,18 @@ const addSticker = (stickerURL) => {
   img.alt = "sticker";
   document.body.appendChild(img);
 
-  // Start fade-out after 19 seconds
+  // Start fade-out after 11 seconds
   setTimeout(() => {
     img.style.opacity = "0"; // fade out over 1 second
-  }, 19000);
+  }, 11000);
 
-  // Remove sticker after 20 seconds
+  // Remove sticker after 12 seconds
   setTimeout(() => {
     img.remove();
-  }, 20000);
+  }, 12000);
 };
 
-for (let i = 0; i < 80; i++) {
-  addSticker("https://images.freeimages.com/image/previews/80a/panda-boy-anime-hood-png-5693574.png?fmt=webp&h=350");
-}
+// for (let i = 0; i < 80; i++) {
+//   addSticker("https://images.freeimages.com/image/previews/80a/panda-boy-anime-hood-png-5693574.png?fmt=webp&h=350");
+// }
+// showJumpScare("https://xrvicqszlafncvfmqydp.supabase.co/storage/v1/object/public/sticker/fnaf-gif.gif", "https://www.myinstants.com/en/instant/fnaf-jumpscare-scream/?utm_source=copy&utm_medium=share");

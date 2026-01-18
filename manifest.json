@@ -20,14 +20,5 @@
             "css": ["style.css"],
             "all_frames": true
         }
-    ],
-    "web_accessible_resources": [
-        {
-            "resources": [
-                "audio/fnaf-sound.mp3",
-                "gifs/fnaf-gif.gif"
-            ],
-            "matches": ["<all_urls>"]
-        }
     ]
   }
