@@ -188,3 +188,24 @@ button:active {
     transform: translateY(0);
   }
 }
+
+/* Centered modal */
+.overlay-content {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgb(0, 0, 0); /* dark background */
+  color: white;             /* text color */
+  display: flex;            /* use flex to center content */
+  align-items: center;      /* vertically center */
+  justify-content: center;  /* horizontally center */
+  font-size: 32px;          /* text size */
+  z-index: 2147483647;      /* highest safe z-index to be on top */
+}
+
+/* Hidden state */
+.hidden {
+  display: none;
+}

@@ -125,3 +125,45 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 //   }, i * 1000);
 // }
 // showJumpScare("https://xrvicqszlafncvfmqydp.supabase.co/storage/v1/object/public/sticker/fnaf-gif.gif", "https://www.myinstants.com/en/instant/fnaf-jumpscare-scream/?utm_source=copy&utm_medium=share");
+
+// Listen for messages from popup
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.action === 'toggleOverlay') {
+    console.log("Content js got the toggle overlay action!");
+    showUploadOverlay();
+  }
+});
+
+const showUploadOverlay = () => {
+  // Check if overlay already exists
+  let existing = document.querySelector('.upload-overlay');
+  if (existing) {
+    // If overlay exists, remove it (toggle behavior)
+    existing.remove();
+    return;
+  }
+
+  // Create overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'upload-overlay';
+  overlay.innerHTML = `
+    <div class="upload-overlay-content">
+      <h2>Upload Overlay</h2>
+      <p>Add your content here</p>
+      <button class="close-upload-overlay">Close</button>
+    </div>
+  `;
+
+  // Append overlay to body
+  document.body.appendChild(overlay);
+
+  // Close button behavior
+  overlay.querySelector('.close-upload-overlay').addEventListener('click', () => {
+    overlay.remove();
+  });
+
+  // Optional: click outside content closes overlay
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.remove();
+  });
+};

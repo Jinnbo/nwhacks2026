@@ -467,3 +467,15 @@ function initializeApp() {
     }
   });
 }
+
+const testBtn = document.getElementById('testBtn');
+
+testBtn.addEventListener('click', () => {
+  console.log("Test button clicked");
+
+  // Send a message to the content script
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    console.log("Right before send message")
+    chrome.tabs.sendMessage(tabs[0].id, { action: 'toggleOverlay' });
+  });
+});
