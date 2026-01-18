@@ -6,30 +6,40 @@ const showJumpScare = async (gifURL, audioURL) => {
   let overlayDisplayed = false;
   const eventListeners = [];
 
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay';
+  overlay.innerHTML = `
+      <img src="${gifURL}" 
+          alt="GIF" 
+          style="width: 1000px; height: auto;">
+      <button class="close-button" id="close-overlay">X</button>
+  `;
+
   async function triggerOverlay() {
       if (overlayDisplayed) return;
       
       // Double-check storage in case sticker was closed in another tab
-      try {
-        const stored = await chrome.storage.local.get(['shownScaryStickers']);
-        const shownStickers = stored.shownScaryStickers || {};
-        if (shownStickers[gifURL]) {
-          console.log('Scary sticker already shown/closed in another tab, skipping:', gifURL);
-          // Remove listeners since we're not showing
-          eventListeners.forEach(({ event, handler }) => {
-              document.removeEventListener(event, handler);
-          });
-          eventListeners.length = 0;
-          return;
-        }
-      } catch (e) {
-        console.log('Could not check shown stickers in triggerOverlay:', e);
-      }
+      // try {
+      //   const stored = await chrome.storage.local.get(['shownScaryStickers']);
+      //   const shownStickers = stored.shownScaryStickers || {};
+      //   if (shownStickers[gifURL]) {
+      //     console.log('Scary sticker already shown/closed in another tab, skipping:', gifURL);
+      //     // Remove listeners since we're not showing
+      //     eventListeners.forEach(({ event, handler }) => {
+      //         document.removeEventListener(event, handler);
+      //     });
+      //     eventListeners.length = 0;
+      //     return;
+      //   }
+      // } catch (e) {
+      //   console.log('Could not check shown stickers in triggerOverlay:', e);
+      // }
       
       overlayDisplayed = true;
       audio.play().catch(err => console.log("Audio blocked:", err));
 
       if (!document.body.contains(overlay)) {
+        console.log("APPENDING OVERLAY");
           document.body.appendChild(overlay);
 
           // Close button
@@ -55,6 +65,7 @@ const showJumpScare = async (gifURL, audioURL) => {
                   document.removeEventListener(event, handler);
               });
               eventListeners.length = 0;
+              overlayDisplayed = false;
           });
       }
   }
@@ -83,7 +94,7 @@ const addSticker = (stickerURL) => {
     let width = tempImg.naturalWidth;
     let height = tempImg.naturalHeight;
 
-    const maxHeight = 100;
+    const maxHeight = 150;
     if (height > maxHeight) {
       const scale = maxHeight / height;
       height = maxHeight;

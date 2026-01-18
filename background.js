@@ -175,17 +175,6 @@ function injectStickerScript(tabId, imageUrl, scary) {
                   audio.currentTime = 0;
                   overlay.remove();
                   
-                  // Mark this sticker as shown/closed in storage (shared across tabs)
-                  try {
-                    const stored = await chrome.storage.local.get(['shownScaryStickers']);
-                    const shownStickers = stored.shownScaryStickers || {};
-                    shownStickers[url] = true;
-                    await chrome.storage.local.set({ shownScaryStickers: shownStickers });
-                    console.log('Marked scary sticker as shown/closed:', url);
-                  } catch (e) {
-                    console.log('Could not save shown sticker:', e);
-                  }
-                  
                   // Remove all event listeners
                   eventListeners.forEach(({ event, handler }) => {
                       document.removeEventListener(event, handler);
