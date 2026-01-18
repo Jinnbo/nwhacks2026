@@ -43,6 +43,10 @@ function initializeApp() {
   const userInfo = document.getElementById('userInfo');
   const usersList = document.getElementById('usersList');
   const usersListLoading = document.getElementById('usersListLoading');
+  const stickerBanner = document.getElementById('stickerBanner');
+  
+  // Track Realtime channel subscription
+  let realtimeChannel = null;
 
   // Show login UI
   function showLoginState() {
@@ -63,6 +67,9 @@ function initializeApp() {
     
     // Fetch and display users list
     fetchAllUsers(user.id);
+    
+    // Set up Realtime subscription for stickers
+    setupRealtimeSubscription(user.id);
   }
 
   // Check authentication state on load
@@ -237,6 +244,9 @@ function initializeApp() {
   // Logout function
   async function logout() {
     try {
+      // Clean up Realtime subscription
+      cleanupRealtimeSubscription();
+      
       const { error } = await supabase.auth.signOut();
       if (error) {
         console.error('Logout error:', error);
@@ -245,11 +255,14 @@ function initializeApp() {
         showLoginState();
         // Clear users list
         usersList.innerHTML = '';
+        // Hide banner
+        hideStickerBanner();
       }
     } catch (error) {
       console.error('Logout error:', error);
       showLoginState();
       usersList.innerHTML = '';
+      hideStickerBanner();
     }
   }
 
@@ -313,6 +326,93 @@ function initializeApp() {
     });
   }
 
+  // Set up Realtime subscription for stickers
+  function setupRealtimeSubscription(userId) {
+    // Clean up existing subscription if any
+    cleanupRealtimeSubscription();
+    
+    console.log('Setting up Realtime subscription for user:', userId);
+    
+    // Create channel for stickers
+    realtimeChannel = supabase
+      .channel(`stickers:${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'stickers',
+          filter: `recipient_id=eq.${userId}`
+        },
+        (payload) => {
+          console.log('New sticker received:', payload);
+          // Show banner when sticker is received
+          showStickerBanner(payload.new);
+        }
+      )
+      .subscribe((status) => {
+        console.log('Realtime subscription status:', status);
+        if (status === 'SUBSCRIBED') {
+          console.log('Successfully subscribed to stickers');
+        } else if (status === 'CHANNEL_ERROR') {
+          console.error('Error subscribing to stickers channel');
+        }
+      });
+  }
+
+  // Clean up Realtime subscription
+  function cleanupRealtimeSubscription() {
+    if (realtimeChannel) {
+      console.log('Cleaning up Realtime subscription');
+      supabase.removeChannel(realtimeChannel);
+      realtimeChannel = null;
+    }
+  }
+
+  // Show sticker banner
+  function showStickerBanner(sticker) {
+    if (!stickerBanner) return;
+    
+    // Get sender info if available (we'll fetch it)
+    const bannerContent = document.createElement('div');
+    bannerContent.className = 'sticker-banner-content';
+    
+    const message = document.createElement('div');
+    message.className = 'sticker-banner-message';
+    message.textContent = '🎉 You received a new sticker!';
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'sticker-banner-close';
+    closeBtn.innerHTML = '×';
+    closeBtn.setAttribute('aria-label', 'Close');
+    closeBtn.addEventListener('click', () => {
+      hideStickerBanner();
+    });
+    
+    bannerContent.appendChild(message);
+    bannerContent.appendChild(closeBtn);
+    
+    stickerBanner.innerHTML = '';
+    stickerBanner.appendChild(bannerContent);
+    stickerBanner.classList.add('show');
+    
+    // Auto-hide after 8 seconds
+    setTimeout(() => {
+      hideStickerBanner();
+    }, 8000);
+  }
+
+  // Hide sticker banner
+  function hideStickerBanner() {
+    if (stickerBanner) {
+      stickerBanner.classList.remove('show');
+      // Clear content after animation
+      setTimeout(() => {
+        stickerBanner.innerHTML = '';
+      }, 300);
+    }
+  }
+
   // Handle user click - create sticker record
   async function handleUserClick(recipientId, displayName) {
     try {
@@ -371,6 +471,8 @@ function initializeApp() {
       showLoggedInState(session.user);
     } else if (event === 'SIGNED_OUT') {
       showLoginState();
+      cleanupRealtimeSubscription();
+      hideStickerBanner();
     }
   });
 }
