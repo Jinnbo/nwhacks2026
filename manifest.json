@@ -7,10 +7,15 @@
         "default_popup": "hello.html",
         "default_icon": "hello_extensions.png"
     },
+    "background": {
+        "service_worker": "background.js"
+    },
     "permissions": [
         "identity",
         "tabs",
-        "scripting"
+        "scripting",
+        "storage",
+        "alarms"
     ],
     "host_permissions": [
         "https://xrvicqszlafncvfmqydp.supabase.co/*",
