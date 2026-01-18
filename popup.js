@@ -66,11 +66,11 @@ function initializeApp() {
     loginContainer.style.display = "none";
     loggedInContainer.style.display = "flex";
 
-    if (user.email) {
-      userInfo.textContent = `Logged in as: ${user.email}`;
-    } else {
-      userInfo.textContent = "Logged in";
-    }
+    // if (user.email) {
+    //   userInfo.textContent = `Logged in as: ${user.email}`;
+    // } else {
+    //   userInfo.textContent = "Logged in";
+    // }
 
     // Fetch and display users list
     fetchAllUsers(user.id);
