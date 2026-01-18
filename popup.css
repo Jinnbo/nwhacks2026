@@ -74,44 +74,45 @@ button:active {
 #usersListContainer {
   width: 100%;
   max-height: 300px;
-  overflow-y: auto;
+  overflow-y: hidden;
   overflow-x: hidden;
   margin: 15px 0;
 }
 
+/* List container */
 .users-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  width: 100%;
+  gap: 6px;
+
+  background: #fff;
+  border: 2px solid rgb(146, 204, 118);
+  border-radius: 14px;
+  padding: 6px;
+  z-index: 100;
 }
 
+/* Items */
 .user-item {
-  padding: 10px 12px;
-  background-color: #f5f5f5;
-  border-radius: 6px;
+  padding: 10px 14px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s;
-  border: 1px solid transparent;
-  font-size: 14px;
-  color: #333;
-  box-sizing: border-box;
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  transition: background-color 0.15s ease, transform 0.1s ease;
 }
 
 .user-item:hover {
-  background-color: #e8f0fe;
-  border-color: #4285f4;
-  box-shadow: 0 2px 4px rgba(66, 133, 244, 0.2);
+  background-color: rgb(146, 204, 118);
 }
 
 .user-item:active {
-  background-color: #d2e3fc;
-  box-shadow: 0 1px 2px rgba(66, 133, 244, 0.1);
+  transform: scale(0.98);
 }
+
 
 .loading {
   text-align: center;
@@ -201,16 +202,15 @@ button:active {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgb(0, 0, 0); /* dark background */
-  color: white;             /* text color */
-  display: flex;            /* use flex to center content */
-  align-items: center;      /* vertically center */
-  justify-content: center;  /* horizontally center */
-  font-size: 32px;          /* text size */
-  z-index: 2147483647;      /* highest safe z-index to be on top */
-}
+  background-color: rgb(0, 0, 0); 
+  color: white;             
+  display: flex;            
+  align-items: center;      
+  justify-content: center;  
+  font-size: 32px;          
+  z-index: 2147483647;    
+}  
 
-/* Hidden state */
 .hidden {
   display: none;
 }
@@ -226,3 +226,47 @@ button:active {
   width: 50px; 
   height: auto;
 }
+
+.cute-dropdown {
+  position: relative;
+  width: 70%;
+  font-family: "Inter", "Poppins", system-ui, sans-serif;
+}
+
+.cute-dropdown select {
+  width: 100%;
+  padding: 10px 14px;
+  padding-right: 36px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgb(146, 204, 118);
+
+  background: #fff;
+  border: 2px solid rgb(146, 204, 118);
+  border-radius: 14px;
+
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  cursor: pointer;
+}
+
+.cute-dropdown {
+  position: relative;
+  width: 100%;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* Trigger box */
+.dropdown-trigger {
+  padding: 10px 14px;
+  border: 2px solid rgb(146, 204, 118);
+  border-radius: 14px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+

@@ -23,13 +23,12 @@
       <div class="user-info" id="userInfo"></div>
       <div id="usersListContainer">
         <div id="usersListLoading" class="loading">Loading users...</div>
-        <div id="usersDropdown">
-          <select id="usersSelect" style="width:100%;">
-            <option value="">Loading users...</option>
-          </select>
+        <div id="usersDropdown" class="cute-dropdown">
+          <div id="usersSelected" class="dropdown-trigger">
+            Select user ▾
+          </div>
+          <div id="usersList" class="users-list" style="display:none"></div>
         </div>
-        <div id="usersList" class="users-list" style="display:none"></div>
-      </div>
       <div id="stickersContainer" style="margin-top:12px;">
         <div style="font-weight:600; margin-bottom:6px;">Choose a sticker</div>
         <div id="stickersGallery" style="display:flex; gap:8px; flex-wrap:wrap; max-height:220px; overflow:auto;">

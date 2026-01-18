@@ -726,3 +726,18 @@ testBtn.addEventListener("click", () => {
     chrome.tabs.sendMessage(tabs[0].id, { action: "toggleOverlay" });
   });
 });
+
+const trigger = document.getElementById("usersSelected");
+const list = document.getElementById("usersList");
+
+trigger.addEventListener("click", () => {
+  list.style.display = list.style.display === "none" ? "flex" : "none";
+});
+
+list.addEventListener("click", (e) => {
+  if (!e.target.classList.contains("user-item")) return;
+
+  trigger.textContent = e.target.textContent;
+  list.style.display = "none";
+});
+
