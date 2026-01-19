@@ -1,9 +1,4 @@
 const showJumpScare = async (gifURL, audioURL) => {
-  const audio = new Audio(audioURL);
-  audio.loop = false;
-  audio.volume = 1.0;
-
-  let overlayDisplayed = false;
   const eventListeners = [];
 
   const overlay = document.createElement('div');
@@ -16,58 +11,22 @@ const showJumpScare = async (gifURL, audioURL) => {
   `;
 
   async function triggerOverlay() {
-      if (overlayDisplayed) return;
-      
-      // Double-check storage in case sticker was closed in another tab
-      // try {
-      //   const stored = await chrome.storage.local.get(['shownScaryStickers']);
-      //   const shownStickers = stored.shownScaryStickers || {};
-      //   if (shownStickers[gifURL]) {
-      //     console.log('Scary sticker already shown/closed in another tab, skipping:', gifURL);
-      //     // Remove listeners since we're not showing
-      //     eventListeners.forEach(({ event, handler }) => {
-      //         document.removeEventListener(event, handler);
-      //     });
-      //     eventListeners.length = 0;
-      //     return;
-      //   }
-      // } catch (e) {
-      //   console.log('Could not check shown stickers in triggerOverlay:', e);
-      // }
-      
-      overlayDisplayed = true;
+      // Play the jumpscare audio
+      const audio = new Audio(audioURL);
+      audio.loop = false;
+      audio.volume = 1.0;
       audio.play().catch(err => console.log("Audio blocked:", err));
 
       if (!document.body.contains(overlay)) {
-        console.log("APPENDING OVERLAY");
-          document.body.appendChild(overlay);
+        document.body.appendChild(overlay);
 
-          // Close button
-          const closeButton = overlay.querySelector("#close-overlay");
-          closeButton.addEventListener("click", async () => {
-              audio.pause();
-              audio.currentTime = 0;
-              overlay.remove();
-              
-              // Mark this sticker as shown/closed in storage (shared across tabs)
-              try {
-                const stored = await chrome.storage.local.get(['shownScaryStickers']);
-                const shownStickers = stored.shownScaryStickers || {};
-                shownStickers[gifURL] = true;
-                await chrome.storage.local.set({ shownScaryStickers: shownStickers });
-                console.log('Marked scary sticker as shown/closed:', gifURL);
-              } catch (e) {
-                console.log('Could not save shown sticker:', e);
-              }
-              
-              // Remove all event listeners
-              eventListeners.forEach(({ event, handler }) => {
-                  document.removeEventListener(event, handler);
-              });
-              eventListeners.length = 0;
-              overlayDisplayed = false;
-          });
-      }
+        // Close button
+        const closeButton = overlay.querySelector("#close-overlay");
+        closeButton.addEventListener("click", async () => {
+          audio.pause();
+          overlay.remove();
+      });
+    }
   }
 
   // List of interactions to listen for
