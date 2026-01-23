@@ -13,6 +13,14 @@
     z-index: 2147483647;      /* highest safe z-index to be on top */
 }
 
+.sticker {
+    position: fixed;
+    z-index: 2147483640;
+    pointer-events: none;
+    user-select: none;
+    transition: opacity 1s;
+}
+
 .close-button {
     position: absolute;
     top: 20px;

@@ -1,5 +1,4 @@
 const showJumpScare = async (gifURL, audioURL) => {
-  const eventListeners = [];
 
   const overlay = document.createElement('div');
   overlay.className = 'overlay';
@@ -13,7 +12,6 @@ const showJumpScare = async (gifURL, audioURL) => {
   async function triggerOverlay() {
       // Play the jumpscare audio
       const audio = new Audio(audioURL);
-      audio.loop = false;
       audio.volume = 1.0;
       audio.play().catch(err => console.log("Audio blocked:", err));
 
@@ -35,12 +33,15 @@ const showJumpScare = async (gifURL, audioURL) => {
   // Attach listeners, all will fire the same function once
   events.forEach(evt => {
       document.addEventListener(evt, triggerOverlay, { once: true });
-      // Store reference for cleanup
-      eventListeners.push({ event: evt, handler: triggerOverlay });
   });
 }
 
 const addSticker = (stickerURL) => {
+  const lifeTime    = 12000; // 12 seconds
+  const maxRotation = 60;    // degrees, stickers randomly rotated between -maxRotation and +maxRotation
+  const maxHeight   = 100;   // pixels
+
+  // Sticker received audio
   const audio = new Audio(chrome.runtime.getURL('hit.wav')); 
   audio.volume = 1.0;
   audio.play().catch(err => console.log("Audio blocked:", err));
@@ -48,12 +49,11 @@ const addSticker = (stickerURL) => {
   // Preload image to get natural dimensions
   const tempImg = new Image();
   tempImg.src = stickerURL;
-
   tempImg.onload = () => {
-    let width = tempImg.naturalWidth;
     let height = tempImg.naturalHeight;
+    let width = tempImg.naturalWidth;
 
-    const maxHeight = 150;
+    // Scale sticker
     if (height > maxHeight) {
       const scale = maxHeight / height;
       height = maxHeight;
@@ -63,16 +63,12 @@ const addSticker = (stickerURL) => {
     const img = document.createElement("img");
     img.src = stickerURL;
     img.alt = "sticker";
+    img.classList.add("sticker");
     img.style.height = `${height}px`;
     img.style.width = `${width}px`;
-    img.style.position = "fixed";
-    img.style.zIndex = "2147483640";
-    img.style.pointerEvents = "none";
-    img.style.userSelect = "none";
-    img.style.transition = "opacity 1s";
 
     // Random rotation
-    const rotation = Math.random() * 60 - 30;
+    const rotation = Math.random() * maxRotation - (maxRotation / 2);
     img.style.transform = `rotate(${rotation}deg)`;
 
     // Random position
@@ -83,8 +79,8 @@ const addSticker = (stickerURL) => {
 
     document.body.appendChild(img);
 
-    setTimeout(() => { img.style.opacity = "0"; }, 11000);
-    setTimeout(() => { img.remove(); }, 12000);
+    setTimeout(() => { img.style.opacity = "0"; }, lifeTime - 1000);
+    setTimeout(() => { img.remove(); }, lifeTime);
   };
 
   tempImg.onerror = (e) => {
