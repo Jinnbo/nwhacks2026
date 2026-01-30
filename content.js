@@ -36,10 +36,12 @@ const showJumpScare = async (gifURL, audioURL) => {
   });
 }
 
-const addSticker = (stickerURL) => {
-  const lifeTime    = 12000; // 12 seconds
+const addSticker = (stickerURL, sender_name) => {
+  const lifeTime    = 12000; // how long sticker stays on screen in ms
   const maxRotation = 60;    // degrees, stickers randomly rotated between -maxRotation and +maxRotation
   const maxHeight   = 100;   // pixels
+
+  console.log("GOT ", sender_name, typeof sender_name);
 
   // Sticker received audio
   const audio = new Audio(chrome.runtime.getURL('hit.wav')); 
@@ -81,6 +83,24 @@ const addSticker = (stickerURL) => {
 
     setTimeout(() => { img.style.opacity = "0"; }, lifeTime - 1000);
     setTimeout(() => { img.remove(); }, lifeTime);
+
+    // --- sender name ---
+    if (sender_name) {
+      const label = document.createElement("div");
+      label.textContent = sender_name;
+      label.style.position = "fixed";
+      label.style.left = img.style.left;
+      label.style.top = `${parseFloat(img.style.top) + height + 4}px`;
+      label.style.fontSize = "12px";
+      label.style.color = "#000000";
+      label.style.textShadow = "0 1px 2px black";
+      label.style.zIndex = "2147483640";
+      label.style.pointerEvents = "none";
+
+      document.body.appendChild(label);
+
+      setTimeout(() => label.remove(), 2000);
+    }
   };
 
   tempImg.onerror = (e) => {
@@ -91,11 +111,8 @@ const addSticker = (stickerURL) => {
 
 // Listen for messages from popup/background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log('Content script received message:', message);
-  
   // Handle toggleOverlay action
   if (message.action === 'toggleOverlay') {
-    console.log("Content js got the toggle overlay action!");
     showUploadOverlay();
     return true; // Keep the channel open if needed
   }
@@ -107,17 +124,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     
     try {
       if (scary) {
-        console.log('Received scary sticker message, calling showJumpScare with:', message.imageUrl);
         showJumpScare(message.imageUrl, scaryAudioUrl);
-        console.log('showJumpScare called successfully');
       } else {
-        console.log('Received sticker message, calling addSticker with:', message.imageUrl);
-        addSticker(message.imageUrl);
-        console.log('addSticker called successfully');
+        addSticker(message.imageUrl, message.sender_name || 'Unknown');
       }
       sendResponse({ success: true });
     } catch (error) {
-      console.error('Error calling sticker function:', error);
       sendResponse({ success: false, error: error.message });
     }
   } else if (message.type === 'SHOW_STICKER') {

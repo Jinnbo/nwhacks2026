@@ -46,12 +46,24 @@ function setupRealtimeSubscription(userId) {
         table: 'stickers',
         filter: `recipient_id=eq.${userId}`
       },
-      (payload) => {
-        console.log('[Background] New sticker received:', payload);
+      async (payload) => {
         const sticker = payload.new;
+
+        // Find the user's display name
+        const { data, error } = await supabaseClient
+          .from("user_list")
+          .select("display_name")
+          .eq("id", sticker.sender_id)
+          .single();
+
+        if (error) {
+          console.error("Failed to fetch sender:", error);
+        }
+
+        console.log("FETCHED ", data.display_name);
+
         if (sticker && sticker.image_url) {
-          const scary = sticker.scary || false;
-          sendStickerToActiveTab(sticker.image_url, scary);
+          sendStickerToActiveTab(sticker.image_url, data.display_name, sticker.scary);
         }
       }
     )
@@ -79,8 +91,8 @@ function cleanupRealtimeSubscription() {
   stopKeepaliveAlarm();
 }
 
-function sendStickerToActiveTab(imageUrl, scary) {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+function sendStickerToActiveTab(imageUrl, sender_name, scary) {
+  chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
     if (tabs.length === 0) return;
     const tab = tabs[0];
 
@@ -92,6 +104,7 @@ function sendStickerToActiveTab(imageUrl, scary) {
       {
         type: 'SHOW_STICKER',
         imageUrl: imageUrl,
+        sender_name: sender_name,
         scary: scary
       },
       (response) => {
