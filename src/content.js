@@ -44,7 +44,7 @@ const addSticker = (stickerURL, sender_name) => {
   console.log("GOT ", sender_name, typeof sender_name);
 
   // Sticker received audio
-  const audio = new Audio(chrome.runtime.getURL('hit.wav')); 
+  const audio = new Audio(chrome.runtime.getURL('assets/hit.wav')); 
   audio.volume = 1.0;
   audio.play().catch(err => console.log("Audio blocked:", err));
 
@@ -120,7 +120,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Handle SHOW_STICKER message
   if (message.type === 'SHOW_STICKER' && message.imageUrl) {
     const scary = message.scary || false;
-    const scaryAudioUrl = chrome.runtime.getURL('scary.mp3');
+    const scaryAudioUrl = chrome.runtime.getURL('assets/scary.mp3');
     
     try {
       if (scary) {

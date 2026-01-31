@@ -9,11 +9,11 @@
         "128": "assets/star_mascot.png"
     },
     "action": {
-        "default_popup": "hello.html",
+        "default_popup": "src/hello.html",
         "default_icon": "assets/star_mascot.png"
     },
     "background": {
-        "service_worker": "background.js"
+        "service_worker": "src/background.js"
     },
     "permissions": [
         "identity",
@@ -30,14 +30,14 @@
     "content_scripts": [
         {
             "matches": ["<all_urls>"],
-            "js": ["content.js"],
-            "css": ["style.css"],
+            "js": ["src/content.js"],
+            "css": ["src/style.css"],
             "all_frames": true
         }
     ],
     "web_accessible_resources": [
         {
-            "resources": ["hit.wav", "scary.mp3", "assets/background.jpg", "assets/exit-icon.png", "assets/stickysend-addtitle.png", "assets/upload-icon.png"],
+            "resources": ["assets/hit.wav", "assets/scary.mp3", "assets/background.jpg", "assets/exit-icon.png", "assets/stickysend-addtitle.png", "assets/upload-icon.png"],
             "matches": ["<all_urls>"]
         }
     ]

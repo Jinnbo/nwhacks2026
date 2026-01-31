@@ -55,7 +55,7 @@
 }
 
 .modal-content {
-    background-image: url('assets/background.jpg');
+    background-image: url('../assets/background.jpg');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;

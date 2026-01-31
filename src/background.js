@@ -122,7 +122,7 @@ function sendStickerToActiveTab(imageUrl, sender_name, scary) {
 // Inject script directly to show sticker if content script isn't loaded
 function injectStickerScript(tabId, imageUrl, scary) {
   const scaryBool = scary || false;
-  const scaryAudioUrl = chrome.runtime.getURL('scary.mp3');
+  const scaryAudioUrl = chrome.runtime.getURL('assets/scary.mp3');
   
   const showStickerFunction = async (url, isScary, audioUrl) => {
     if (isScary) {
@@ -237,7 +237,7 @@ function injectStickerScript(tabId, imageUrl, scary) {
       img.alt = "sticker";
       document.body.appendChild(img);
 
-      const audio = new Audio(chrome.runtime.getURL('hit.wav')); 
+      const audio = new Audio(chrome.runtime.getURL('assets/hit.wav')); 
       audio.volume = 1.0;
       audio.play().catch(err => console.log("Audio blocked:", err));
 
