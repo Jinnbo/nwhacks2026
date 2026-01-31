@@ -93,12 +93,6 @@ function initializeApp() {
     loginContainer.style.display = "none";
     loggedInContainer.style.display = "flex";
 
-    // if (user.email) {
-    //   userInfo.textContent = `Logged in as: ${user.email}`;
-    // } else {
-    //   userInfo.textContent = "Logged in";
-    // }
-
     // Fetch and display users list
     fetchAllUsers(user.id);
     // Fetch stickers from storage and render gallery
@@ -298,31 +292,6 @@ function initializeApp() {
     } catch (error) {
       console.error("Login error:", error);
       alert("Login failed: " + error.message);
-    }
-  }
-
-  // Logout function
-  async function logout() {
-    try {
-      // Clean up Realtime subscription
-      cleanupRealtimeSubscription();
-
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error("Logout error:", error);
-        alert("Failed to logout: " + error.message);
-      } else {
-        showLoginState();
-        // Clear users list
-        usersList.innerHTML = "";
-        // Hide banner
-        hideStickerBanner();
-      }
-    } catch (error) {
-      console.error("Logout error:", error);
-      showLoginState();
-      usersList.innerHTML = "";
-      hideStickerBanner();
     }
   }
 
@@ -821,9 +790,6 @@ function initializeApp() {
         const okConfirm = confirm("No sticker selected. Send default sticker instead?");
         if (okConfirm) {
           const ok = await handleUserClick(recipientId, displayName, null, false);
-          if (ok && false) {
-            /* no-op */
-          }
         }
       }
     });
